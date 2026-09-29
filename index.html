@@ -1,0 +1,3149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <title>VLLP Marketing</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#16324f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="VLLP Marketing">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    /* ---- phone app: connection screen + activity bar ---- */
+    #phoneSetup { display: none; position: fixed; inset: 0; z-index: 2000; background: #16324f;
+                  align-items: center; justify-content: center; padding: 24px; }
+    #phoneSetup .box { background: #fff; border-radius: 16px; padding: 24px 20px; width: 100%; max-width: 380px; }
+    #phoneSetup h2 { margin: 0 0 4px; color: #16324f; font-size: 20px; }
+    #phoneSetup p { margin: 0 0 16px; color: #6b7785; font-size: 13px; line-height: 1.4; }
+    #phoneSetup .field { margin-bottom: 12px; }
+    #phoneSetup input { font-size: 16px; }
+    #phoneSetup .pin { letter-spacing: 6px; text-align: center; font-size: 22px; }
+    #phoneSetup button.primary { width: 100%; padding: 13px; font-size: 15px; }
+    #phoneSetup .err { color: #d64545; font-size: 13px; min-height: 18px; margin-top: 10px; text-align: center; }
+    #phoneSetup .link-btn { display: block; margin: 12px auto 0; font-size: 12px; }
+    #busyBar { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 3000; display: none;
+               background: linear-gradient(90deg, #e8a33d 0%, #2e6f95 50%, #e8a33d 100%); background-size: 200% 100%;
+               animation: busy 1s linear infinite; }
+    @keyframes busy { from { background-position: 200% 0; } to { background-position: 0 0; } }
+    #phoneSettingsBtn { position: absolute; right: 12px; top: 10px; background: rgba(255,255,255,.12); color: #fff;
+                        border: none; border-radius: 8px; padding: 6px 10px; font-size: 16px; cursor: pointer; }
+    header { position: relative; padding-top: max(10px, env(safe-area-inset-top)); }
+  </style>
+
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <style>
+    :root {
+      --navy: #16324f;
+      --blue: #2e6f95;
+      --accent: #e8a33d;
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --border: #dfe4e8;
+      --green: #2f9e44;
+      --red: #d64545;
+      --text: #1f2933;
+      --muted: #6b7785;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background: var(--bg); margin: 0; color: var(--text); }
+    header { background: var(--navy); color: #fff; padding: 18px 24px; }
+    header h1 { margin: 0; font-size: 20px; letter-spacing: .5px; }
+    header p { margin: 4px 0 0; font-size: 13px; opacity: .8; }
+    header .version { margin-top:6px; font-size: 11px; opacity: .65; font-family: monospace; }
+
+    .tabs { display: flex; background: #fff; border-bottom: 1px solid var(--border); overflow-x: auto; }
+    .tab { padding: 12px 18px; cursor: pointer; font-weight: 600; font-size: 13px; color: var(--muted); border-bottom: 3px solid transparent; white-space: nowrap; }
+    .tab.active { color: var(--navy); border-bottom-color: var(--accent); }
+    .page { display: none; padding: 20px; max-width: 1150px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; }
+    .card h2 { font-size: 15px; margin: 0 0 12px; color: var(--navy); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .card h3 { font-size: 13px; margin: 0 0 10px; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
+    input, select { width: 100%; padding: 7px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; background: #fff; }
+    input[type="checkbox"], input[type="radio"] { width: auto; }
+    input[disabled] { background: #f1f3f5; color: var(--muted); }
+    .field { margin-bottom: 2px; }
+    .hint { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; }
+    th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; }
+    .mat-row input { width: 90px; }
+
+    .results { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+    .result-box { background: #f9fafb; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+    .result-box .label { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+    .result-box .value { font-size: 18px; font-weight: 700; color: var(--navy); margin-top: 2px; }
+    .result-box.highlight { background: var(--navy); }
+    .result-box.highlight .label { color: #cfd9e2; }
+    .result-box.highlight .value { color: #fff; }
+    .result-box.profit .value { color: var(--green); }
+
+    button.primary { background: var(--blue); color: #fff; border: none; padding: 10px 22px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; }
+    button.primary:hover { background: var(--navy); }
+    button.primary[disabled] { opacity: .6; cursor: default; }
+    button.secondary { background: #fff; color: var(--blue); border: 1px solid var(--blue); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; }
+    button.danger { background: none; border: 1px solid var(--red); color: var(--red); padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+    button.danger:hover { background: var(--red); color: #fff; }
+    .link-btn { background: none; border: none; padding: 0; color: var(--blue); font-size: 11px; font-weight: 600; cursor: pointer; text-decoration: underline; }
+
+    /* ---- pencil (view / edit) button on the Transactions list ---- */
+    button.icon-btn { background: #fff; border: 1px solid var(--blue); color: var(--blue); padding: 4px 9px; border-radius: 6px; cursor: pointer; font-size: 13px; line-height: 1; }
+    button.icon-btn:hover { background: var(--blue); color: #fff; }
+    .row-actions { display: flex; gap: 6px; white-space: nowrap; }
+
+    /* ---- "editing TXN-..." banner on the Calculator ---- */
+    .edit-banner {
+      display: none; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      background: #fff4e0; border: 1px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+    }
+    .edit-banner strong { color: var(--navy); font-size: 14px; }
+
+    .actions { margin-top: 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .status { font-size: 13px; }
+    .status.ok { color: var(--green); }
+    .status.err { color: var(--red); }
+    .empty { color: var(--muted); text-align: center; padding: 30px; }
+    .scroll-x { overflow-x: auto; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .badge.low { background: #fdecec; color: var(--red); }
+    .badge.ok { background: #eaf7ec; color: var(--green); }
+    .badge.warn { background: #fff4e0; color: #b26a00; }
+    .toggle-row {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+      font-size: 13px; cursor: pointer; width: fit-content;
+    }
+    .toggle-row input[type="checkbox"] {
+      flex: 0 0 16px; width: 16px; height: 16px; margin: 0; cursor: pointer;
+    }
+    .toggle-row span { line-height: 1.3; }
+    .chip-pool { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .chip { padding: 6px 14px; border: 1px solid var(--blue); color: var(--blue); border-radius: 20px;
+            background: #fff; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .chip:hover { background: var(--blue); color: #fff; }
+    .chip-empty { font-size: 12px; color: var(--muted); }
+
+    /* ---- searchable product combobox ---- */
+    .combo { position: relative; }
+    .suggest-list {
+      display: none; position: absolute; z-index: 50; top: 100%; left: 0; right: 0;
+      background: #fff; border: 1px solid var(--border); border-top: none;
+      border-radius: 0 0 8px 8px; max-height: 220px; overflow-y: auto;
+      box-shadow: 0 8px 20px rgba(0,0,0,.10);
+    }
+    .suggest-item { padding: 8px 10px; font-size: 13px; cursor: pointer; }
+    .suggest-item:hover, .suggest-item.hi { background: #f1f6fb; }
+    .suggest-item .spec { color: var(--muted); font-size: 11px; margin-top: 1px; }
+    .suggest-empty { padding: 8px 10px; font-size: 12px; color: var(--muted); }
+
+    /* ---- clickable sales rows ---- */
+    tr.clickable { cursor: pointer; }
+    tr.clickable:hover td { background: #f1f6fb; }
+    .total-cell strong { font-size: 13px; color: var(--navy); }
+    .total-cell .hint { margin-top: 1px; white-space: nowrap; }
+
+    #globalError {
+      display: none; background: #fdecec; color: var(--red); padding: 10px 20px;
+      font-size: 13px; border-bottom: 1px solid var(--red); position: relative;
+    }
+    #globalError button {
+      position: absolute; right: 16px; top: 8px; background: none; border: none;
+      color: var(--red); font-weight: 700; cursor: pointer; font-size: 14px;
+    }
+    #modalOverlay {
+      display: none; position: fixed; inset: 0; background: rgba(15,25,35,.5);
+      align-items: center; justify-content: center; z-index: 999; padding: 20px;
+    }
+    #modalOverlay .modal-box {
+      background: #fff; border-radius: 14px; padding: 28px 30px; max-width: 340px;
+      width: 100%; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,.2);
+    }
+    .modal-icon { font-size: 36px; margin-bottom: 8px; }
+    .modal-title { font-weight: 700; font-size: 17px; color: var(--navy); margin-bottom: 4px; }
+    .modal-sub { font-size: 12px; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+    .modal-code { font-size: 22px; font-weight: 800; color: var(--blue); margin-bottom: 22px; letter-spacing: .5px; }
+
+    /* ---- edit sale pop-up ---- */
+    #editSaleOverlay {
+      display: none; position: fixed; inset: 0; background: rgba(15,25,35,.5);
+      align-items: center; justify-content: center; z-index: 998; padding: 20px;
+    }
+    #editSaleOverlay .edit-box {
+      background: #fff; border-radius: 14px; padding: 22px 24px; max-width: 520px;
+      width: 100%; max-height: 92vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,.2);
+    }
+    #invDetailOverlay {
+      display: none; position: fixed; inset: 0; background: rgba(15,25,35,.5);
+      align-items: center; justify-content: center; z-index: 998; padding: 20px;
+    }
+    #invDetailOverlay .edit-box {
+      background: #fff; border-radius: 14px; padding: 22px 24px; max-width: 640px;
+      width: 100%; max-height: 92vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,.2);
+    }
+    .edit-box h2 { font-size: 17px; margin: 0 0 2px; color: var(--navy); }
+    .edit-sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+    .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .edit-grid .full { grid-column: 1 / -1; }
+    @media (max-width: 480px) { .edit-grid { grid-template-columns: 1fr; } }
+    .calc-box { background: #f9fafb; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+    .calc-box .label { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+    .calc-box .value { font-size: 22px; font-weight: 800; color: var(--navy); margin-top: 2px; }
+    .calc-box .formula { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* ---- sales summary (date range) ---- */
+    .range-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 8px; }
+    .range-row .field { width: 160px; }
+    .preset-row { display: flex; gap: 6px; flex-wrap: wrap; padding-bottom: 2px; }
+    .chip.sm { padding: 4px 11px; font-size: 11px; }
+    .result-box .sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .result-box.owed .value { color: var(--red); }
+    .result-box.partial .value { color: #b26a00; }
+
+    /* ---- payroll dashboard ---- */
+    .month-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 8px; }
+    .month-row .field { width: 230px; }
+    .subhead { font-size: 13px; font-weight: 700; color: var(--navy); margin: 18px 0 8px; }
+    table.compact th, table.compact td { padding: 5px 8px; }
+    table .r { text-align: right; }
+    tr.total-row td { font-weight: 700; background: #f9fafb; }
+    .result-box.expense .value { color: #b26a00; }
+
+    /* ---- payroll pop-up form ---- */
+    #payrollOverlay {
+      display: none; position: fixed; inset: 0; background: rgba(15,25,35,.5);
+      align-items: flex-start; justify-content: center; z-index: 997; padding: 20px; overflow-y: auto;
+    }
+    #payrollOverlay .edit-box {
+      background: #fff; border-radius: 14px; padding: 22px 24px; max-width: 860px;
+      width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,.2); margin: auto 0;
+    }
+    .pr-table input { width: 110px; text-align: right; }
+    .pr-table input.desc { width: 100%; min-width: 160px; text-align: left; }
+    .pr-table tr.weekend td:first-child, .pr-table tr.weekend td:nth-child(2) { color: var(--red); }
+    .pr-table tr.has-ot td.ot { color: #b26a00; font-weight: 700; }
+    button.sm { padding: 5px 10px; font-size: 12px; }
+
+    /* ---- payslip (print only) ---- */
+    #printArea { display: none; }
+    @media print {
+      body > *:not(#printArea) { display: none !important; }
+      body { background: #fff; }
+      #printArea { display: block; }
+      @page { size: A4; margin: 12mm; }
+    }
+    .slip { font-family: Arial, sans-serif; color: #000; font-size: 12px; max-width: 720px; margin: 0 auto; }
+    .slip h1 { font-size: 20px; margin: 0; letter-spacing: 1px; }
+    .slip .slip-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 10px; }
+    .slip .slip-title { font-size: 15px; font-weight: 700; letter-spacing: 2px; }
+    .slip table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px; }
+    .slip th, .slip td { border: 1px solid #999; padding: 4px 6px; text-align: left; color: #000; }
+    .slip th { background: #eee; font-size: 11px; text-transform: uppercase; }
+    .slip td.r, .slip th.r { text-align: right; }
+    .slip .info td { border: none; padding: 2px 6px 2px 0; }
+    .slip .info td.k { color: #444; width: 110px; }
+    .slip .cols { display: flex; gap: 12px; }
+    .slip .cols > div { flex: 1; }
+    .slip .tot td { font-weight: 700; background: #f4f4f4; }
+    .slip .net { border: 2px solid #000; padding: 8px 12px; display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; margin: 6px 0 26px; }
+    .slip .sign { display: flex; gap: 40px; margin-top: 10px; }
+    .slip .sign div { flex: 1; border-top: 1px solid #000; padding-top: 4px; text-align: center; font-size: 11px; }
+
+    /* =====================================================================
+       PHONE LAYOUT (screens up to 640px wide). Same app, same Google Sheet —
+       only the layout changes: compact header, sticky tabs, two fields per
+       row, and wide tables turned into one card per record.
+       ===================================================================== */
+    @media (max-width: 640px) {
+      header { padding: 10px 14px; }
+      header h1 { font-size: 16px; }
+      header p { font-size: 11px; margin-top: 2px; }
+
+      .tabs { position: sticky; top: 0; z-index: 60; box-shadow: 0 2px 6px rgba(0,0,0,.06);
+              scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+      .tabs::-webkit-scrollbar { display: none; }
+      .tab { padding: 11px 12px; font-size: 12.5px; }
+
+      .page { padding: 10px; }
+      .card { padding: 12px; border-radius: 10px; margin-bottom: 10px; }
+      .card h2 { font-size: 14px; margin-bottom: 10px; padding-bottom: 6px; }
+      .card h2 button.secondary { padding: 4px 10px; font-size: 12px; margin-top: -3px; }
+      .hint { font-size: 11px; }
+
+      /* two fields per row instead of one long column */
+      .grid { grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+      label { font-size: 11px; margin-bottom: 3px; }
+      /* 16px text stops iPhones from zooming in when a box is tapped */
+      input, select { font-size: 16px; padding: 8px 9px; }
+      input[type="date"] { padding: 7px 6px; min-height: 38px; }
+
+      .results { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .result-box { padding: 8px 10px; }
+      .result-box .label { font-size: 10px; }
+      .result-box .value { font-size: 16px; }
+      .result-box .sub { font-size: 10px; }
+
+      .actions { gap: 8px; }
+      .actions button.primary, .actions button.secondary { flex: 1 1 auto; padding: 12px 14px; }
+      .actions .status { flex-basis: 100%; }
+      .actions .hint { flex-basis: 100%; }
+
+      .chip-pool { gap: 6px; }
+      .chip { padding: 6px 11px; }
+      .add-material-row { max-width: none !important; }
+      .mat-row input { width: 68px; }
+      #materialsBody td { padding: 5px 4px; }
+
+      .range-row, .month-row { gap: 8px; }
+      .range-row .field, .month-row .field { width: calc(50% - 4px); }
+      #dashChart { height: 220px !important; }
+
+      /* ---- wide tables become one card per record ---- */
+      table.cardify, table.cardify tbody { display: block; }
+      table.cardify thead { display: none; }
+      table.cardify tr { display: block; background: #fff; border: 1px solid var(--border); border-radius: 10px;
+                         padding: 6px 12px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+      table.cardify tr.clickable:active { background: #f1f6fb; }
+      table.cardify td { display: block; border: none; padding: 4px 0; text-align: right; min-height: 22px; }
+      table.cardify td::before { content: attr(data-label); float: left; color: var(--muted); font-size: 11px;
+                                 text-transform: uppercase; padding-right: 10px; line-height: 18px; }
+      table.cardify td[data-label=""]::before { content: none; }
+      table.cardify td[colspan] { text-align: center; }
+      table.cardify td[colspan]::before { content: none; }
+      table.cardify td:first-child { font-weight: 700; color: var(--navy); border-bottom: 1px solid var(--border);
+                                     padding-bottom: 6px; margin-bottom: 2px; }
+      table.cardify td .hint { margin-top: 0; }
+      table.cardify td .row-actions { justify-content: flex-end; flex-wrap: wrap; }
+      table.cardify td:last-child:not(:first-child) { padding-top: 6px; }
+      table.cardify tr.total-row { background: #f9fafb; }
+      /* Transactions: the whole card opens the record, so the pencil just becomes the card title marker */
+      #txnBody td:first-child { display: none; }
+      #txnBody td:nth-child(2) { font-weight: 700; color: var(--navy); border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 2px; }
+      #txnBody td:nth-child(2)::after { content: '  ✏️ tap to view / edit'; font-weight: 400; font-size: 11px; color: var(--blue); }
+
+      /* ---- pop-ups fill the phone screen ---- */
+      #editSaleOverlay, #invDetailOverlay, #payrollOverlay { padding: 0; align-items: stretch; }
+      #editSaleOverlay .edit-box, #invDetailOverlay .edit-box, #payrollOverlay .edit-box {
+        border-radius: 0; max-width: none; min-height: 100%; max-height: none; padding: 14px 14px 24px; margin: 0; }
+      #editSaleOverlay .edit-box, #invDetailOverlay .edit-box { overflow-y: auto; height: 100%; }
+      .edit-box h2 { font-size: 16px; }
+      #modalOverlay .modal-box { padding: 22px 20px; }
+
+      /* payroll pop-up: keep the per-day hours as a tight table */
+      .pr-table th, .pr-table td { padding: 5px 3px; font-size: 12px; }
+      .pr-table th { font-size: 9.5px; }
+      .pr-table input { width: 54px; padding: 6px 5px; }
+      .pr-table input.desc { min-width: 0; width: 100%; }
+      .pr-table .hint { font-size: 10px; }
+      #pr_daysBody td:first-child { white-space: nowrap; }
+    }
+  </style>
+</head>
+<body>
+<div id="busyBar"></div>
+<div id="phoneSetup">
+  <div class="box">
+    <h2>VLLP Marketing</h2>
+    <p id="ps_intro">Connect this phone to your Google Sheet. You only need to do this once.</p>
+    <div class="field" id="ps_urlWrap">
+      <label>Connection link</label>
+      <input id="ps_url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <div class="field">
+      <label>PIN</label>
+      <input id="ps_pin" class="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="••••">
+    </div>
+    <button class="primary" id="ps_btn" type="button">Connect</button>
+    <div class="err" id="ps_err"></div>
+    <button class="link-btn" id="ps_changeUrl" type="button" style="display:none;">Change connection link</button>
+  </div>
+</div>
+
+
+<header>
+  <h1>VLLP MARKETING</h1>
+  <p>Pricing calculator, sales, inventory &amp; payroll</p>
+  <div class="version" id="appVersion" style="display:none;"></div>
+</header>
+
+<div id="globalError"><span id="globalErrorText"></span><button onclick="document.getElementById('globalError').style.display='none';">✕</button></div>
+
+<div id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-icon">✅</div>
+    <div class="modal-title" id="modalTitle">Saved</div>
+    <div class="modal-sub">Reference Code</div>
+    <div class="modal-code" id="modalCode"></div>
+    <button class="primary" onclick="document.getElementById('modalOverlay').style.display='none';">OK</button>
+  </div>
+</div>
+
+<!-- Edit sale pop-up -->
+<div id="editSaleOverlay">
+  <div class="edit-box">
+    <h2>Edit sale <span id="e_codeLabel"></span></h2>
+    <div class="edit-sub" id="e_summary"></div>
+    <div class="edit-grid">
+      <div class="field">
+        <label>Payment Status</label>
+        <select id="e_payment" onchange="syncPayment('e','status')">
+          <option>Paid</option>
+          <option>Pending</option>
+          <option>Partial</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Amount Paid (₱)</label>
+        <input type="number" step="0.01" id="e_paid" disabled>
+        <div class="hint" id="e_balHint"></div>
+      </div>
+      <div class="field">
+        <label>Quantity Sold (pcs)</label>
+        <input type="number" id="e_qty">
+        <div class="hint" id="e_qtyHint"></div>
+      </div>
+      <div class="field">
+        <label>Unit Selling Price (₱)</label>
+        <input type="number" step="0.0001" id="e_price">
+        <div class="hint" id="e_priceHint"></div>
+      </div>
+      <div class="field full">
+        <div class="calc-box">
+          <div class="label">Total Amount (Unit Price × Pcs)</div>
+          <div class="value" id="e_total">₱0.00</div>
+          <div class="formula" id="e_formula"></div>
+        </div>
+      </div>
+      <div class="field full"><label>Customer Name</label><input id="e_customer"></div>
+      <div class="field full"><label>Notes</label><input id="e_notes"></div>
+    </div>
+    <div class="actions">
+      <button class="primary" id="e_saveBtn" onclick="saveSaleEdit()">Save changes</button>
+      <button class="secondary" onclick="closeEditSale()">Cancel</button>
+      <span class="status" id="e_status"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Inventory detail pop-up: shows recent sales for a product -->
+<div id="invDetailOverlay">
+  <div class="edit-box">
+    <h2 id="inv_productName"></h2>
+    <div class="edit-sub" id="inv_summary"></div>
+    <div class="scroll-x">
+      <table class="compact">
+        <thead>
+          <tr><th>Date</th><th>Customer</th><th>Qty (pcs)</th><th>Unit Price</th><th>Total</th></tr>
+        </thead>
+        <tbody id="inv_salesBody"></tbody>
+      </table>
+      <div class="empty" id="inv_salesEmpty" style="display:none;">No sales recorded yet for this product.</div>
+    </div>
+    <div class="actions">
+      <button class="secondary" onclick="closeInventoryDetail()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- New payroll entry pop-up -->
+<div id="payrollOverlay">
+  <div class="edit-box">
+    <h2 id="pr_title">New Payroll Entry</h2>
+    <div class="edit-sub" id="pr_sub">Fill in the employee and pay period, then the hours worked each day. Hours above the regular hours per day count as overtime.</div>
+
+    <div class="grid">
+      <div class="field"><label>Employee Name</label><input id="pr_name"></div>
+      <div class="field"><label>Position</label><input id="pr_position"></div>
+      <div class="field"><label>Pay Period From</label><input type="date" id="pr_start"></div>
+      <div class="field"><label>Pay Period To</label><input type="date" id="pr_end"></div>
+      <div class="field">
+        <label>Rate Type</label>
+        <select id="pr_rateType">
+          <option value="Weekly" selected>Weekly</option>
+          <option value="Daily">Daily</option>
+          <option value="Hourly">Hourly</option>
+        </select>
+      </div>
+      <div class="field"><label id="pr_rateLabel">Rate per Week (₱)</label><input type="number" step="0.01" min="0" id="pr_rate" value="0"></div>
+    </div>
+    <div class="grid" style="margin-top:10px;">
+      <div class="field"><label>Regular Hours per Day</label><input type="number" step="0.5" min="1" id="pr_hpd" value="8"></div>
+      <div class="field" id="pr_dpwWrap"><label>Work Days per Week</label><input type="number" step="1" min="1" max="7" id="pr_dpw" value="6"></div>
+      <div class="field"><label>Overtime Pay (× hourly rate)</label><input type="number" step="0.05" min="1" id="pr_otMult" value="1.25"></div>
+    </div>
+    <div class="hint" id="pr_hourlyHint" style="margin-top:6px;"></div>
+
+    <div class="subhead">Hours Worked</div>
+    <div class="scroll-x">
+      <table class="compact pr-table">
+        <thead><tr><th>Date</th><th>Day</th><th>Hours Worked</th><th class="r">Regular Hrs</th><th class="r">Overtime Hrs</th><th class="r">Pay (₱)</th></tr></thead>
+        <tbody id="pr_daysBody"></tbody>
+        <tfoot id="pr_daysFoot"></tfoot>
+      </table>
+      <div class="empty" id="pr_daysEmpty" style="padding:14px;">Pick the pay period above — each date will appear here as a row.</div>
+    </div>
+
+    <div class="subhead">Deductions</div>
+    <div class="scroll-x">
+      <table class="compact pr-table">
+        <thead><tr><th>Deduction</th><th class="r">Employee Share<div class="hint" style="text-transform:none;">deducted from pay</div></th><th class="r">Employer Share<div class="hint" style="text-transform:none;">company expense</div></th><th></th></tr></thead>
+        <tbody>
+          <tr><td>SSS</td><td class="r"><input type="number" step="0.01" min="0" id="pr_sss_ee" value="0"></td><td class="r"><input type="number" step="0.01" min="0" id="pr_sss_er" value="0"></td><td></td></tr>
+          <tr><td>PAG-IBIG</td><td class="r"><input type="number" step="0.01" min="0" id="pr_pagibig_ee" value="0"></td><td class="r"><input type="number" step="0.01" min="0" id="pr_pagibig_er" value="0"></td><td></td></tr>
+          <tr><td>PhilHealth</td><td class="r"><input type="number" step="0.01" min="0" id="pr_philhealth_ee" value="0"></td><td class="r"><input type="number" step="0.01" min="0" id="pr_philhealth_er" value="0"></td><td></td></tr>
+        </tbody>
+        <tbody id="pr_otherBody"></tbody>
+        <tbody id="pr_addOtherRow">
+          <tr><td colspan="4"><button type="button" class="link-btn" style="font-size:12px;" onclick="addOtherDeduction()">+ Add additional deduction</button>
+            <span class="hint">(cash advance, uniform, tardiness… — employee only)</span></td></tr>
+        </tbody>
+        <tfoot>
+          <tr class="total-row"><td>Total</td><td class="r" id="pr_eeTotal">0.00</td><td class="r" id="pr_erTotal">0.00</td><td></td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="field" style="margin-top:12px;"><label>Notes</label><input id="pr_notes"></div>
+
+    <div class="results" style="margin-top:14px;">
+      <div class="result-box"><div class="label">Regular Pay</div><div class="value" id="pr_regPay">0.00</div><div class="sub" id="pr_regSub">0 hrs</div></div>
+      <div class="result-box"><div class="label">Overtime Pay</div><div class="value" id="pr_otPay">0.00</div><div class="sub" id="pr_otSub">0 hrs</div></div>
+      <div class="result-box"><div class="label">Gross Pay</div><div class="value" id="pr_gross">0.00</div></div>
+      <div class="result-box"><div class="label">Employee Deductions</div><div class="value" id="pr_deductions">0.00</div></div>
+      <div class="result-box highlight"><div class="label">Net Pay</div><div class="value" id="pr_net">0.00</div></div>
+      <div class="result-box expense"><div class="label">Employer Share</div><div class="value" id="pr_employer">0.00</div></div>
+      <div class="result-box"><div class="label">Total Cost to Company</div><div class="value" id="pr_cost">0.00</div></div>
+    </div>
+    <div class="actions">
+      <button class="primary" id="pr_saveBtn" onclick="savePayrollEntry()">Save Payroll Entry</button>
+      <button class="primary" id="pr_editBtn" type="button" onclick="setPayrollMode('edit')" style="display:none;">✏️ Edit</button>
+      <button class="secondary" id="pr_printBtn" type="button" onclick="printPayslip(prCode)" style="display:none;">🖨 Print Payslip</button>
+      <button class="secondary" id="pr_closeBtn" type="button" onclick="closePayrollForm()">Cancel</button>
+      <span class="status" id="payrollStatus"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Payslip is built here only when printing; hidden on screen -->
+<div id="printArea"></div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="dash">Dashboard</div>
+  <div class="tab" data-tab="calc">Calculator</div>
+  <div class="tab" data-tab="txn">Transactions</div>
+  <div class="tab" data-tab="sales">Sales</div>
+  <div class="tab" data-tab="inv">Inventory</div>
+  <div class="tab" data-tab="payroll">Payroll</div>
+  <div class="tab" data-tab="products">Products</div>
+</div>
+
+<!-- ===================== DASHBOARD ===================== -->
+<div class="page active" id="page-dash">
+  <div class="card">
+    <h2>Monthly Overview</h2>
+    <div id="dashChart" style="width:100%; height:280px;"></div>
+  </div>
+  <div class="card">
+    <h2>Month Detail</h2>
+    <div class="field" style="max-width:220px; margin-bottom:14px;">
+      <label>Select Month</label>
+      <select id="monthSelect" onchange="renderMonthDetail()"></select>
+    </div>
+    <div class="results" style="margin-bottom:16px;">
+      <div class="result-box highlight"><div class="label">Total Expenses</div><div class="value" id="d_exp">0.00</div></div>
+      <div class="result-box highlight"><div class="label">Total Revenue</div><div class="value" id="d_rev">0.00</div></div>
+      <div class="result-box profit"><div class="label">Total Profit</div><div class="value" id="d_profit">0.00</div></div>
+    </div>
+    <div class="scroll-x">
+      <table>
+        <thead><tr><th>Product</th><th>Qty Produced</th><th>Qty Sold</th><th>Revenue</th><th>Profit</th></tr></thead>
+        <tbody id="d_products"></tbody>
+      </table>
+      <div class="empty" id="d_empty" style="display:none;">No data for this month yet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CALCULATOR ===================== -->
+<div class="page" id="page-calc">
+  <div class="edit-banner" id="txnEditBanner">
+    <div>
+      <strong>✏️ Editing <span id="txnEditCode"></span></strong>
+      <div class="hint" id="txnEditSub">Change anything below, then press Update Transaction. The code and original date stay the same.</div>
+    </div>
+    <button class="secondary" type="button" onclick="cancelTxnEdit()">Cancel edit</button>
+  </div>
+
+  <div class="card">
+    <h2>Product</h2>
+    <label class="toggle-row" for="newProductToggle">
+      <input type="checkbox" id="newProductToggle" onchange="toggleNewProduct()">
+      <span>This is a new product (add it to the Products list)</span>
+    </label>
+    <div class="grid">
+      <div class="field combo" id="productSelectWrap">
+        <label>Product Name</label>
+        <input id="productSearch" placeholder="Type to search products…" autocomplete="off">
+        <input type="hidden" id="productSelect" value="">
+        <div id="productSuggestions" class="suggest-list"></div>
+      </div>
+      <div class="field" id="productNewWrap" style="display:none;">
+        <label>New Product Name</label>
+        <input id="newProductName" placeholder="e.g. TRASHBAG BLACK XL">
+      </div>
+      <div class="field">
+        <label>Specification</label>
+        <input id="specs" placeholder="e.g. 37x40x0.001 XXL">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Specifications &amp; Quantity</h2>
+    <div class="grid">
+      <div class="field"><label>Length</label><input type="number" id="length" value="0"></div>
+      <div class="field"><label>Width</label><input type="number" id="width" value="0"></div>
+      <div class="field"><label>Thickness</label><input type="number" step="0.0001" id="thickness" value="0"></div>
+      <div class="field">
+        <label>Machine Factor (fixed)</label>
+        <input type="number" id="machine" disabled>
+        <div class="hint">Fixed value, same for every product</div>
+      </div>
+      <div class="field"><label>Quantity (pcs)</label><input type="number" id="quantity" value="10000"></div>
+      <div class="field"><label>Waste %</label><input type="number" step="0.1" id="waste" value="10"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Raw Materials</h2>
+    <div class="hint" style="margin-bottom:10px;">Tap a material to add it to this mix. Only materials you add are used in the calculation and saved. Picking a saved product above auto-loads its usual mix — add or remove materials here for this specific batch.</div>
+    <div class="chip-pool" id="materialPool"></div>
+    <div class="add-material-row" style="display:flex; gap:8px; margin-bottom:16px; max-width:340px;">
+      <input id="newMaterialName" placeholder="New material name (e.g. RCHD)…" style="flex:1;">
+      <button class="secondary" type="button" onclick="addNewMaterial()">+ Add material</button>
+    </div>
+    <div class="scroll-x">
+      <table>
+        <thead><tr><th>Material</th><th>% of Mix</th><th>Cost / Kg</th><th>Result (₱)</th><th></th></tr></thead>
+        <tbody id="materialsBody"></tbody>
+      </table>
+      <div class="empty" id="materialsEmpty">No materials added yet — tap one above to add it.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Labor, Electricity &amp; Building</h2>
+    <div class="grid">
+      <div class="field"><label>Machine Output (Kg/Hr)</label><input type="number" id="kgHr" value="1"></div>
+      <div class="field"><label>Salary per Person (₱)</label><input type="number" id="salaryPerson" value="0"></div>
+      <div class="field"><label>Electricity per Unit (₱)</label><input type="number" id="electricity" value="0"></div>
+      <div class="field"><label>Building Rent (₱)</label><input type="number" id="bldgRent" value="0"></div>
+      <div class="field"><label>Mark Up %</label><input type="number" step="0.1" id="markup" value="0"></div>
+    </div>
+    <div class="grid" style="margin-top:12px;">
+      <div class="field">
+        <label>Additional Punching Days</label>
+        <select id="punchingDays"></select>
+      </div>
+      <div class="field"><label>Salary per Day (₱)</label><input type="number" step="0.01" id="punchingRate" value="0"></div>
+    </div>
+    <div class="hint" style="margin-top:4px;">For products that need manual punching. Punching cost = punching days × salary per day, added straight into Total Expenses. Leave at 0 days if not needed.</div>
+  </div>
+
+  <div class="card">
+    <h2>Computed Results</h2>
+    <div class="results">
+      <div class="result-box"><div class="label">Total Kg</div><div class="value" id="r_totalKg">0.00</div></div>
+      <div class="result-box"><div class="label">Materials Cost</div><div class="value" id="r_materials">0.00</div></div>
+      <div class="result-box"><div class="label">Salary Result</div><div class="value" id="r_salary">0.00</div></div>
+      <div class="result-box"><div class="label">Electricity Result</div><div class="value" id="r_elec">0.00</div></div>
+      <div class="result-box"><div class="label">Bldg Result</div><div class="value" id="r_bldg">0.00</div></div>
+      <div class="result-box"><div class="label">Additional Punching</div><div class="value" id="r_addl">0.00</div><div class="sub" id="r_addlSub">0 days × ₱0.00</div></div>
+      <div class="result-box highlight"><div class="label">Total Expenses</div><div class="value" id="r_total">0.00</div></div>
+      <div class="result-box"><div class="label">Cost Per Piece</div><div class="value" id="r_cpp">0.00</div></div>
+      <div class="result-box"><div class="label">12% VAT</div><div class="value" id="r_vat">0.00</div></div>
+      <div class="result-box highlight"><div class="label">Selling Price</div><div class="value" id="r_sp">0.00</div></div>
+      <div class="result-box profit"><div class="label">Profit</div><div class="value" id="r_profit">0.00</div></div>
+    </div>
+    <div class="actions">
+      <button class="primary" id="saveTxnBtn" onclick="saveCurrent()">Save Transaction</button>
+      <button class="secondary" id="cancelTxnBtn" type="button" onclick="cancelTxnEdit()" style="display:none;">Cancel edit</button>
+      <span class="status" id="saveStatus"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TRANSACTIONS ===================== -->
+<div class="page" id="page-txn">
+  <div class="card">
+    <h2>Saved Transactions <button class="secondary" style="float:right;" onclick="loadTransactions()">Refresh</button></h2>
+    <div class="hint" style="margin:-4px 0 10px;">Click any transaction (or its ✏️) to open it in the Calculator form — see its full materials, salary, electricity and building computation, and edit it.</div>
+    <div class="scroll-x">
+      <table>
+        <thead>
+          <tr>
+            <th></th><th>Code</th><th>Date</th><th>Product</th><th>Qty</th>
+            <th>Material Cost</th><th>Salary</th><th>Electricity</th><th>Bldg</th><th>Punching Cost</th>
+            <th>Total Expenses</th>
+            <th>Cost/Piece</th><th>VAT</th><th>Markup %</th><th>Selling Price</th><th>Profit</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="txnBody"></tbody>
+      </table>
+      <div class="empty" id="txnEmpty" style="display:none;">No transactions saved yet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SALES ===================== -->
+<div class="page" id="page-sales">
+  <div class="card">
+    <h2>Sales Summary</h2>
+    <div class="range-row">
+      <div class="field"><label>From</label><input type="date" id="sum_from" onchange="renderSalesSummary()"></div>
+      <div class="field"><label>To</label><input type="date" id="sum_to" onchange="renderSalesSummary()"></div>
+      <div class="preset-row">
+        <button type="button" class="chip sm" onclick="setSummaryRange('today')">Today</button>
+        <button type="button" class="chip sm" onclick="setSummaryRange('month')">This month</button>
+        <button type="button" class="chip sm" onclick="setSummaryRange('lastmonth')">Last month</button>
+        <button type="button" class="chip sm" onclick="setSummaryRange('year')">This year</button>
+        <button type="button" class="chip sm" onclick="setSummaryRange('all')">All time</button>
+      </div>
+    </div>
+    <div class="hint" id="sum_note" style="margin-bottom:12px;"></div>
+    <div class="results">
+      <div class="result-box">
+        <div class="label">Total Sales</div>
+        <div class="value" id="sum_total">₱0.00</div>
+        <div class="sub" id="sum_totalSub">Paid or not</div>
+      </div>
+      <div class="result-box profit">
+        <div class="label">Collection (Paid)</div>
+        <div class="value" id="sum_paid">₱0.00</div>
+        <div class="sub" id="sum_paidSub">Amount already received</div>
+      </div>
+      <div class="result-box owed">
+        <div class="label">Accounts Receivable (Pending)</div>
+        <div class="value" id="sum_ar">₱0.00</div>
+        <div class="sub" id="sum_arSub">Balance still to collect</div>
+      </div>
+      <div class="result-box partial">
+        <div class="label">Partial Payments</div>
+        <div class="value" id="sum_partialCount">0</div>
+        <div class="sub" id="sum_partialSub">Transactions with partial payment</div>
+      </div>
+    </div>
+    <div class="hint" style="margin-top:10px;">Total Sales = Collection + Accounts Receivable. Collection is the money already received (full and partial payments); Accounts Receivable is the balance customers still owe. Amounts include VAT — the net-of-VAT figure is shown under each.</div>
+  </div>
+
+  <div class="card">
+    <h2>Record a Sale</h2>
+    <div class="grid">
+      <div class="field">
+        <label>Transaction Code</label>
+        <select id="s_txnCode" onchange="onSaleTxnChange()"></select>
+      </div>
+      <div class="field"><label>Product</label><input id="s_product" disabled></div>
+      <div class="field"><label>Available Stock</label><input id="s_stock" disabled></div>
+      <div class="field"><label>Quantity Sold (pcs)</label><input type="number" id="s_qty" value="0"></div>
+      <div class="field">
+        <label>Unit Selling Price (₱)</label>
+        <input type="number" step="0.0001" id="s_price">
+        <div class="hint" id="s_priceHint">Pick a transaction to load its calculator price.</div>
+      </div>
+      <div class="field">
+        <label>Total Amount (₱)</label>
+        <input id="s_total" disabled value="0.00">
+        <div class="hint">Unit price × pcs</div>
+      </div>
+      <div class="field">
+        <label>Payment Status</label>
+        <select id="s_payment" onchange="syncPayment('s','status')">
+          <option>Paid</option>
+          <option>Pending</option>
+          <option>Partial</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Amount Paid (₱)</label>
+        <input type="number" step="0.01" id="s_paid" value="0.00" disabled>
+        <div class="hint" id="s_balHint">Balance: ₱0.00</div>
+      </div>
+      <div class="field"><label>Customer Name</label><input id="s_customer"></div>
+      <div class="field"><label>Notes</label><input id="s_notes"></div>
+    </div>
+    <div class="actions">
+      <button class="primary" onclick="saveSaleForm()">Record Sale</button>
+      <span class="status" id="saleStatus"></span>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Sales History</h2>
+    <div class="hint" style="margin:-4px 0 10px;">Click any sale to edit its payment status, amount paid, price, quantity, customer or notes. The Total is VAT-inclusive: Net of VAT + VAT = Total.</div>
+    <div class="scroll-x">
+      <table>
+        <thead>
+          <tr><th>Sale Code</th><th>Date</th><th>Txn Code</th><th>Customer</th><th>Product</th><th>Qty (pcs)</th>
+              <th>Unit Price</th><th>Net of VAT</th><th>VAT (12%)</th><th>Total</th><th>Payment</th><th></th></tr>
+        </thead>
+        <tbody id="salesBody"></tbody>
+      </table>
+      <div class="empty" id="salesEmpty" style="display:none;">No sales recorded yet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== INVENTORY ===================== -->
+<div class="page" id="page-inv">
+  <div class="card">
+    <h2>Current Inventory <button class="secondary" style="float:right;" onclick="loadInventory()">Refresh</button></h2>
+    <div class="hint" style="margin:-6px 0 10px;">Click a product's row to see its sales details — customer, qty sold and unit price.</div>
+    <div class="scroll-x">
+      <table>
+        <thead>
+          <tr><th>Product</th><th>Current Stock</th><th>Total Produced</th><th>Total Sold</th>
+              <th>Last Production</th><th>Last Sale</th></tr>
+        </thead>
+        <tbody id="invBody"></tbody>
+      </table>
+      <div class="empty" id="invEmpty" style="display:none;">No inventory yet — save a transaction first.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PAYROLL ===================== -->
+<div class="page" id="page-payroll">
+
+  <div class="card">
+    <h2>Payroll Dashboard</h2>
+    <div class="month-row">
+      <div class="field"><label>Month</label><select id="pd_month" onchange="renderPayrollDashboard()"></select></div>
+      <div class="field">
+        <label>Working hours per month</label>
+        <div style="display:flex; gap:6px;">
+          <input type="number" id="pd_hours" value="208" min="1" max="744">
+          <button class="secondary" type="button" onclick="savePayrollHours()">Save</button>
+        </div>
+      </div>
+      <span class="status" id="pd_hoursStatus"></span>
+    </div>
+    <div class="hint" id="pd_note" style="margin-bottom:12px;"></div>
+
+    <div class="results">
+      <div class="result-box">
+        <div class="label">Employees Paid</div>
+        <div class="value" id="pd_emp">0</div>
+        <div class="sub" id="pd_empSub">0 payroll entries</div>
+      </div>
+      <div class="result-box">
+        <div class="label">Gross Pay</div>
+        <div class="value" id="pd_gross">₱0.00</div>
+      </div>
+      <div class="result-box">
+        <div class="label">Employee Deductions</div>
+        <div class="value" id="pd_ded">₱0.00</div>
+        <div class="sub">SSS, PAG-IBIG, PhilHealth, other</div>
+      </div>
+      <div class="result-box highlight">
+        <div class="label">Net Pay</div>
+        <div class="value" id="pd_net">₱0.00</div>
+        <div class="sub" style="color:#cfd9e2;">Gross pay − employee deductions</div>
+      </div>
+      <div class="result-box expense">
+        <div class="label">Employer Share (Company Expense)</div>
+        <div class="value" id="pd_er">₱0.00</div>
+        <div class="sub">SSS, PAG-IBIG, PhilHealth</div>
+      </div>
+      <div class="result-box highlight">
+        <div class="label">Total Payroll Expense</div>
+        <div class="value" id="pd_cost">₱0.00</div>
+        <div class="sub" style="color:#cfd9e2;">Gross pay + employer share</div>
+      </div>
+    </div>
+
+    <div class="subhead">Manufacturing Salary (from Transactions)</div>
+    <div class="results">
+      <div class="result-box expense">
+        <div class="label">Total Salary Result</div>
+        <div class="value" id="pd_mfgSalary">₱0.00</div>
+        <div class="sub" id="pd_mfgSalarySub">0 production runs</div>
+      </div>
+    </div>
+    <div class="hint" style="margin-top:6px;">The total of the Calculator's Salary Result across every Transaction saved this month (grouped by each transaction's own date). This cost is already counted in each transaction's Total Expenses — it's shown here so the manufacturing salary expense accumulates by month, alongside (not added into) the office payroll figures above.</div>
+
+    <div class="subhead">Government Contributions</div>
+    <div class="scroll-x">
+      <table class="compact">
+        <thead><tr><th>Contribution</th><th class="r">Employee Share</th><th class="r">Employer Share</th><th class="r">Total to Remit</th></tr></thead>
+        <tbody id="pd_contrib"></tbody>
+      </table>
+    </div>
+
+    <div class="subhead">Month by Month</div>
+    <div class="hint" style="margin:-4px 0 8px;">Click a month to open it above.</div>
+    <div class="scroll-x">
+      <table class="compact">
+        <thead>
+          <tr><th>Month</th><th class="r">Employees</th><th class="r">Gross Pay</th><th class="r">Employee Deductions</th>
+              <th class="r">Net Pay</th><th class="r">Employer Share</th><th class="r">Total Payroll Expense</th>
+              <th class="r">Manufacturing Salary</th></tr>
+        </thead>
+        <tbody id="pd_months"></tbody>
+      </table>
+      <div class="empty" id="pd_empty" style="display:none;">No payroll entries yet — add one below.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Payroll Entry</h2>
+    <div class="actions" style="margin-top:0;">
+      <button class="primary" type="button" onclick="openPayrollForm()">+ New Payroll Entry</button>
+      <span class="hint">Opens a form: employee, pay period, hours worked per day (overtime is worked out automatically), then SSS / PAG-IBIG / PhilHealth and any additional deductions.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Payroll History <button class="secondary" style="float:right;" onclick="loadPayroll()">Refresh</button></h2>
+    <div class="hint" style="margin:-4px 0 10px;">Click any entry to view its full details — daily hours, overtime, deductions — and edit or print it.</div>
+    <div class="scroll-x">
+      <table>
+        <thead>
+          <tr><th>Code</th><th>Employee</th><th>Position</th><th>Period</th><th>Rate Type</th>
+              <th>Rate</th><th>Hours Worked</th><th>Gross</th><th>Employee Deductions</th><th>Net Pay</th>
+              <th>Employer Share</th><th></th></tr>
+        </thead>
+        <tbody id="payrollBody"></tbody>
+      </table>
+      <div class="empty" id="payrollEmpty" style="display:none;">No payroll entries yet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PRODUCTS ===================== -->
+<div class="page" id="page-products">
+  <div class="card">
+    <h2>Add Product</h2>
+    <div class="grid">
+      <div class="field"><label>Product Name</label><input id="p_name"></div>
+      <div class="field"><label>Specification</label><input id="p_spec"></div>
+    </div>
+    <div class="actions">
+      <button class="primary" onclick="addProductManual()">Add Product</button>
+      <span class="status" id="productStatus"></span>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Product List <button class="secondary" style="float:right;" onclick="loadProducts()">Refresh</button></h2>
+    <div class="field" style="max-width:320px; margin-bottom:12px;">
+      <label>Search Products</label>
+      <input id="productListSearch" placeholder="Type to filter by name or spec…" oninput="filterProductsTable()">
+    </div>
+    <div class="scroll-x">
+      <table>
+        <thead><tr><th>Product Name</th><th>Specification</th><th>Date Added</th></tr></thead>
+        <tbody id="productsBody"></tbody>
+      </table>
+      <div class="empty" id="productsEmpty" style="display:none;">No products yet.</div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* ======================================================================
+   PHONE APP CONNECTOR
+   Replaces google.script.run so every call goes to the Apps Script
+   "phone connection" deployment (doPost) together with the PIN.
+   The desktop page's code below works unchanged on top of it.
+   ====================================================================== */
+(function () {
+  // Optional: paste the phone connection link (…/exec) between the quotes so
+  // phones only have to type the PIN. Leave '' to type it on the phone instead.
+  var BUILT_IN_URL = '';
+
+  function get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+  function set(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} }
+
+  // a link like …/index.html#api=https://script.google.com/…/exec pre-fills the connection link
+  var m = /[#&]api=([^&]+)/.exec(location.hash);
+  if (m) { set('vllp_api', decodeURIComponent(m[1])); history.replaceState(null, '', location.pathname + location.search); }
+
+  var apiUrl = BUILT_IN_URL || get('vllp_api');
+  var pin = get('vllp_pin');
+  var ready = !!(apiUrl && pin);
+  var queue = [];
+  var inflight = 0;
+
+  function busy(d) {
+    inflight = Math.max(0, inflight + d);
+    var bar = document.getElementById('busyBar');
+    if (bar) bar.style.display = inflight ? 'block' : 'none';
+  }
+
+  function post(fn, args, usePin) {
+    return fetch(apiUrl, { method: 'POST', redirect: 'follow',
+                           body: JSON.stringify({ pin: usePin, fn: fn, args: args || [] }) })
+      .then(function (r) {
+        if (!r.ok) throw new Error('Server answered ' + r.status);
+        return r.text();
+      })
+      .then(function (t) {
+        try { return JSON.parse(t); }
+        catch (e) { throw new Error('The connection link did not answer like the VLLP app. Check the link and that the deployment access is "Anyone".'); }
+      });
+  }
+
+  function call(fn, args, ok, fail) {
+    if (!ready) { queue.push([fn, args, ok, fail]); return; }
+    busy(1);
+    post(fn, args, pin).then(function (res) {
+      busy(-1);
+      if (res.ok) { if (ok) ok(res.result); return; }
+      if (res.code === 'BAD_PIN' || res.code === 'DISABLED' || res.code === 'LOCKED') {
+        queue.push([fn, args, ok, fail]);
+        needSetup(res.error);
+        return;
+      }
+      if (fail) fail(new Error(res.error || 'Something went wrong'));
+    }).catch(function (err) {
+      busy(-1);
+      var msg = navigator.onLine === false ? 'No internet connection. Connect and try again.'
+                                           : 'Could not reach the Google Sheet. ' + (err && err.message ? err.message : '');
+      if (fail) fail(new Error(msg));
+    });
+  }
+
+  function runner(ok, fail) {
+    return new Proxy({}, {
+      get: function (_, k) {
+        if (k === 'withSuccessHandler') return function (f) { return runner(f, fail); };
+        if (k === 'withFailureHandler') return function (f) { return runner(ok, f); };
+        if (k === 'withUserObject') return function () { return runner(ok, fail); };
+        if (typeof k !== 'string') return undefined;
+        return function () { call(k, Array.prototype.slice.call(arguments), ok, fail); };
+      }
+    });
+  }
+
+  window.google = window.google || {};
+  window.google.script = { run: runner(null, null) };
+
+  // ---------- connection / PIN screen ----------
+  function el(id) { return document.getElementById(id); }
+  function needSetup(msg) {
+    ready = false;
+    pin = '';
+    set('vllp_pin', '');
+    showSetup(msg);
+  }
+  function showSetup(msg) {
+    var hasBuiltIn = !!BUILT_IN_URL;
+    el('ps_urlWrap').style.display = (hasBuiltIn || apiUrl) ? 'none' : '';
+    el('ps_changeUrl').style.display = (!hasBuiltIn && apiUrl) ? 'block' : 'none';
+    el('ps_url').value = apiUrl || '';
+    el('ps_pin').value = '';
+    el('ps_err').textContent = msg || '';
+    el('ps_intro').textContent = apiUrl ? 'Enter your PIN to open the app.'
+                                        : 'Connect this phone to your Google Sheet. You only need to do this once.';
+    el('phoneSetup').style.display = 'flex';
+    setTimeout(function () { (apiUrl ? el('ps_pin') : el('ps_url')).focus(); }, 50);
+  }
+  function connect() {
+    var url = (BUILT_IN_URL || el('ps_url').value || apiUrl || '').trim();
+    var p = el('ps_pin').value.trim();
+    var err = el('ps_err');
+    if (!/^https:\/\/script\.google\.com\/.+\/exec/.test(url)) { err.textContent = 'Paste the connection link that ends in /exec.'; return; }
+    if (!p) { err.textContent = 'Enter the PIN.'; return; }
+    err.textContent = 'Connecting…';
+    el('ps_btn').disabled = true;
+    apiUrl = url;
+    post('ping', [], p).then(function (res) {
+      el('ps_btn').disabled = false;
+      if (!res.ok) { err.textContent = res.error || 'Could not connect'; return; }
+      pin = p;
+      set('vllp_api', BUILT_IN_URL ? '' : url);
+      set('vllp_pin', p);
+      ready = true;
+      el('phoneSetup').style.display = 'none';
+      var q = queue.splice(0);
+      q.forEach(function (c) { call(c[0], c[1], c[2], c[3]); });
+    }).catch(function (e) {
+      el('ps_btn').disabled = false;
+      err.textContent = navigator.onLine === false ? 'No internet connection.' : (e.message || 'Could not connect');
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    el('ps_btn').addEventListener('click', connect);
+    el('ps_pin').addEventListener('keydown', function (e) { if (e.key === 'Enter') connect(); });
+    el('ps_changeUrl').addEventListener('click', function () {
+      el('ps_urlWrap').style.display = ''; el('ps_changeUrl').style.display = 'none'; el('ps_url').focus();
+    });
+    var header = document.querySelector('header');
+    if (header) {
+      var b = document.createElement('button');
+      b.id = 'phoneSettingsBtn'; b.type = 'button'; b.title = 'Lock / change connection'; b.textContent = '🔒';
+      b.addEventListener('click', function () {
+        if (confirm('Lock the app? You will need the PIN to open it again.')) { needSetup(''); }
+      });
+      header.appendChild(b);
+    }
+    if (!ready) showSetup('');
+  });
+
+  // keeps the app openable offline and quick to start (data always comes live from the Sheet)
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  }
+})();
+</script>
+
+<script>
+  let MATERIALS = []; // loaded from the server — open-ended, grows as materials are added
+  let machineFactor = 0.03032;
+
+  // ---------- global error banner & modal (works without dev console) ----------
+  function showError(context, err) {
+    const msg = (err && err.message) ? err.message : String(err);
+    const banner = document.getElementById('globalError');
+    document.getElementById('globalErrorText').textContent = 'Error (' + context + '): ' + msg;
+    banner.style.display = 'block';
+  }
+  function showSavedModal(title, code) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalCode').textContent = code;
+    document.getElementById('modalOverlay').style.display = 'flex';
+  }
+
+  // ---------- version tag (kept out of view for a clean, client-ready screen —
+  // still written to the hidden element and the console for your own troubleshooting) ----------
+  google.script.run.withSuccessHandler(v => {
+    document.getElementById('appVersion').textContent = v + ' • loaded ' + new Date().toLocaleTimeString();
+    console.log('App version:', v);
+  }).withFailureHandler(err => {
+    document.getElementById('appVersion').textContent = 'Version check failed';
+    showError('version check', err);
+  }).getAppVersion();
+
+  // ---------- init ----------
+  google.script.run.withSuccessHandler(mf => {
+    machineFactor = mf;
+    document.getElementById('machine').value = mf;
+    calculate();
+  }).withFailureHandler(err => showError('machine factor', err)).getMachineFactor();
+
+  let selectedMaterials = [];
+  const materialValues = {};
+
+  function renderMaterials() {
+    const pool = document.getElementById('materialPool');
+    pool.innerHTML = '';
+    const available = MATERIALS.filter(m => !selectedMaterials.includes(m));
+    if (!available.length) {
+      pool.innerHTML = '<span class="chip-empty">All materials added.</span>';
+    } else {
+      available.forEach(m => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chip';
+        btn.textContent = '+ ' + m;
+        btn.onclick = () => { selectedMaterials.push(m); renderMaterials(); calculate(); };
+        pool.appendChild(btn);
+      });
+    }
+
+    const tbody = document.getElementById('materialsBody');
+    const empty = document.getElementById('materialsEmpty');
+    tbody.innerHTML = '';
+    empty.style.display = selectedMaterials.length ? 'none' : 'block';
+    selectedMaterials.forEach(m => {
+      const v = materialValues[m] || { pct: 0, cost: 0 };
+      const tr = document.createElement('tr');
+      tr.className = 'mat-row';
+      tr.innerHTML = `
+        <td>${m}</td>
+        <td><input type="number" step="0.1" class="mat-pct" data-mat="${m}" value="${v.pct}"></td>
+        <td><input type="number" step="0.01" class="mat-cost" data-mat="${m}" value="${v.cost}"></td>
+        <td class="mat-result" data-mat="${m}">0.00</td>
+        <td><button type="button" class="danger" onclick="removeMaterial('${m}')">Remove</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+    tbody.querySelectorAll('.mat-pct, .mat-cost').forEach(el => {
+      el.addEventListener('input', () => {
+        const m = el.dataset.mat;
+        materialValues[m] = materialValues[m] || { pct: 0, cost: 0 };
+        materialValues[m].pct = parseFloat(document.querySelector(`.mat-pct[data-mat="${m}"]`).value) || 0;
+        materialValues[m].cost = parseFloat(document.querySelector(`.mat-cost[data-mat="${m}"]`).value) || 0;
+        calculate();
+      });
+    });
+  }
+
+  function removeMaterial(m) {
+    selectedMaterials = selectedMaterials.filter(x => x !== m);
+    renderMaterials();
+    calculate();
+  }
+
+  function loadMaterialsList() {
+    google.script.run
+      .withSuccessHandler(list => {
+        MATERIALS = list || [];
+        // keep any material a transaction being edited uses, even if the pool hasn't caught up yet
+        selectedMaterials.forEach(m => { if (!MATERIALS.includes(m)) MATERIALS.push(m); });
+        renderMaterials();
+        calculate();
+      })
+      .withFailureHandler(err => showError('materials list', err))
+      .getMaterialsList();
+  }
+
+  function addNewMaterial() {
+    const input = document.getElementById('newMaterialName');
+    const name = input.value.trim();
+    if (!name) return;
+    google.script.run
+      .withSuccessHandler(res => {
+        if (res.success) {
+          MATERIALS = res.materials || MATERIALS;
+          input.value = '';
+          renderMaterials();
+          calculate();
+        } else {
+          showError('add material', new Error(res.error || 'Could not add material'));
+        }
+      })
+      .withFailureHandler(err => showError('add material', err))
+      .addMaterial(name);
+  }
+
+  // ---------- number helpers ----------
+  function num(id) { return parseFloat(document.getElementById(id).value) || 0; }
+  function round2(n) { return Math.round(n * 100) / 100; }
+  function fmt(n) { return Number(n || 0).toFixed(2); }
+
+  /** Money rounded the same way the server does it (2 dp, with epsilon). */
+  function roundMoney(n) { return Math.round((n + Number.EPSILON) * 100) / 100; }
+  /** Sales unit prices use 4 decimals (e.g. 0.6048), so unit price × pcs adds up to the total on screen. */
+  function roundPrice(n) { return Math.round((Number(n) || 0) * 10000) / 10000; }
+  /** Money with thousands separators, e.g. 12,345.60 */
+  function fmtMoney(n) {
+    return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  /** Unit price: always 4 decimals. */
+  function fmtPrice(n) { return Number(n || 0).toFixed(4); }
+  function esc(s) {
+    return String(s === null || s === undefined ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function calculate() {
+    const length = num('length'), width = num('width'), thickness = num('thickness');
+    const quantity = num('quantity'), waste = num('waste') / 100;
+
+    const totalKg = round2(length * width * thickness * machineFactor * quantity * (1 + waste));
+    document.getElementById('r_totalKg').textContent = fmt(totalKg);
+
+    let materialsSum = 0;
+    const materials = [];
+    selectedMaterials.forEach(m => {
+      const v = materialValues[m] || { pct: 0, cost: 0 };
+      const pct = v.pct || 0;
+      const cost = v.cost || 0;
+      const result = round2(round2(totalKg) * (pct / 100) * cost);
+      const cell = document.querySelector(`.mat-result[data-mat="${m}"]`);
+      if (cell) cell.textContent = fmt(result);
+      materialsSum += result;
+      materials.push({ name: m, pct, cost, result });
+    });
+    document.getElementById('r_materials').textContent = fmt(materialsSum);
+
+    const kgHr = num('kgHr') || 1;
+    const salaryPerson = num('salaryPerson');
+    const electricity = num('electricity');
+    const bldgRent = num('bldgRent');
+
+    const salaryResult = salaryPerson * (totalKg / kgHr);
+    const elecResult = electricity * (totalKg / kgHr);
+    const bldgResult = bldgRent * (totalKg / kgHr);
+    document.getElementById('r_salary').textContent = fmt(salaryResult);
+    document.getElementById('r_elec').textContent = fmt(elecResult);
+    document.getElementById('r_bldg').textContent = fmt(bldgResult);
+
+    const punchingDays = num('punchingDays');
+    const punchingRate = num('punchingRate');
+    const punchingCost = round2(punchingDays * punchingRate);
+    document.getElementById('r_addl').textContent = fmt(punchingCost);
+    document.getElementById('r_addlSub').textContent =
+      punchingDays + (punchingDays === 1 ? ' day' : ' days') + ' × ₱' + fmtMoney(punchingRate);
+
+    const totalExpenses = round2(materialsSum + salaryResult + elecResult + bldgResult + punchingCost);
+    const costPerPiece = quantity ? round2(totalExpenses / quantity) : 0;
+    const vat = costPerPiece * 1.12;
+    const markup = num('markup');
+    const sellingPrice = vat + (vat * markup / 100);
+    const profit = sellingPrice - vat;
+
+    document.getElementById('r_total').textContent = fmt(totalExpenses);
+    document.getElementById('r_cpp').textContent = fmt(costPerPiece);
+    document.getElementById('r_vat').textContent = fmt(vat);
+    document.getElementById('r_sp').textContent = fmt(sellingPrice);
+    document.getElementById('r_profit').textContent = fmt(profit);
+
+    return { totalKg, materials, kgHr, salaryPerson, salaryResult, electricity, elecResult,
+             bldgRent, bldgResult, punchingDays, punchingRate, punchingCost,
+             totalExpenses, costPerPiece, vat, markup, sellingPrice, profit };
+  }
+  document.querySelectorAll('#page-calc input').forEach(el => {
+    if (el.id !== 'machine') el.addEventListener('input', calculate);
+  });
+
+  // ---------- Additional Punching Days (dropdown) × Salary per Day ----------
+  const MAX_PUNCHING_DAYS = 31;
+  (function fillPunchingDays() {
+    const sel = document.getElementById('punchingDays');
+    for (let d = 0; d <= MAX_PUNCHING_DAYS; d++) {
+      const o = document.createElement('option');
+      o.value = String(d);
+      o.textContent = d === 0 ? '0 (none)' : d + (d === 1 ? ' day' : ' days');
+      sel.appendChild(o);
+    }
+    sel.addEventListener('change', calculate);
+  })();
+
+  /** Picks a day count in the dropdown, adding it as an option first if it isn't
+   *  one of the listed choices (e.g. an older value above 31 or a half day). */
+  function setPunchingDays(days) {
+    const sel = document.getElementById('punchingDays');
+    const v = String(Number(days) || 0);
+    if (!Array.from(sel.options).some(o => o.value === v)) {
+      const o = document.createElement('option');
+      o.value = v;
+      o.textContent = v + ' days';
+      sel.appendChild(o);
+    }
+    sel.value = v;
+  }
+
+  /** Days and salary per day from something saved earlier. Anything saved before
+   *  punching days existed only has one lump Additional Process Cost — that is
+   *  shown as 1 day × that amount, so the total cost stays the same. */
+  function punchingFromSaved(days, rate, legacyCost) {
+    const d = Number(days) || 0, r = Number(rate) || 0;
+    if (d || r) return { days: d, rate: r };
+    const legacy = Number(legacyCost) || 0;
+    return legacy ? { days: 1, rate: legacy } : { days: 0, rate: 0 };
+  }
+
+  /** Punching figures for a saved Transactions row, for the list: cost plus a short
+   *  "3 days × 500.00" line (older rows show their old Additional Process label). */
+  function punchingOfRow(r) {
+    const hasNew = ['Punching Days', 'Punching Salary Per Day', 'Punching Cost']
+      .some(k => r[k] !== '' && r[k] !== null && r[k] !== undefined && Number(r[k]) !== 0);
+    if (hasNew) {
+      const days = Number(r['Punching Days']) || 0, rate = Number(r['Punching Salary Per Day']) || 0;
+      const cost = (r['Punching Cost'] !== '' && r['Punching Cost'] !== undefined) ? (Number(r['Punching Cost']) || 0) : round2(days * rate);
+      return { cost, label: days + (days === 1 ? ' day' : ' days') + ' × ' + fmt(rate) };
+    }
+    const legacy = Number(r['Additional Process Cost']) || 0;
+    return { cost: legacy, label: legacy && r['Additional Process Label'] ? String(r['Additional Process Label']) : '' };
+  }
+
+  function toggleNewProduct() {
+    const isNew = document.getElementById('newProductToggle').checked;
+    document.getElementById('productSelectWrap').style.display = isNew ? 'none' : 'block';
+    document.getElementById('productNewWrap').style.display = isNew ? 'block' : 'none';
+  }
+
+  // ---------- searchable product combobox (Calculator tab) ----------
+  let allProducts = [];
+
+  function loadProductDropdown() {
+    google.script.run
+      .withSuccessHandler(products => {
+        allProducts = products || [];
+        const search = document.getElementById('productSearch');
+        search.placeholder = allProducts.length ? 'Type to search products…' : 'No products yet — add one below';
+      })
+      .withFailureHandler(err => {
+        allProducts = [];
+        document.getElementById('productSearch').placeholder = 'Error loading products — see banner above';
+        showError('product dropdown', err);
+      })
+      .getProducts();
+  }
+
+  function renderProductSuggestions(query) {
+    const box = document.getElementById('productSuggestions');
+    const q = query.trim().toLowerCase();
+    const matches = q
+      ? allProducts.filter(p => String(p['Product Name'] || '').toLowerCase().includes(q))
+      : allProducts;
+    box.innerHTML = '';
+    if (!matches.length) {
+      box.innerHTML = '<div class="suggest-empty">' + (allProducts.length ? 'No matching products' : 'No products yet — add one below') + '</div>';
+      box.style.display = 'block';
+      return;
+    }
+    matches.slice(0, 50).forEach(p => {
+      const row = document.createElement('div');
+      row.className = 'suggest-item';
+      const spec = p['Specification'] ? '<div class="spec">' + p['Specification'] + '</div>' : '';
+      row.innerHTML = '<div>' + p['Product Name'] + '</div>' + spec;
+      row.onmousedown = (e) => { e.preventDefault(); selectProduct(p); };
+      box.appendChild(row);
+    });
+    box.style.display = 'block';
+  }
+
+  function selectProduct(p) {
+    document.getElementById('productSelect').value = p['Product Name'];
+    document.getElementById('productSearch').value = p['Product Name'];
+    if (p['Specification'] && !document.getElementById('specs').value) {
+      document.getElementById('specs').value = p['Specification'];
+    }
+    document.getElementById('productSuggestions').style.display = 'none';
+    // while editing a saved transaction, keep its own materials — don't swap in the product's usual recipe
+    if (!editingTxnCode) applyProductRecipe(p['Default Recipe']);
+  }
+
+  /** Loads this product's last-saved materials mix + additional process into
+   *  the form (replacing whatever's currently entered), so picking a saved
+   *  product feels instant — still fully editable afterward for this batch. */
+  function applyProductRecipe(recipe) {
+    if (!recipe) return;
+    selectedMaterials = [];
+    Object.keys(materialValues).forEach(k => delete materialValues[k]);
+    (recipe.materials || []).forEach(m => {
+      if (!m || !m.name) return;
+      if (!MATERIALS.includes(m.name)) MATERIALS.push(m.name);
+      selectedMaterials.push(m.name);
+      materialValues[m.name] = { pct: m.pct || 0, cost: m.cost || 0 };
+    });
+    const p = punchingFromSaved(recipe.punchingDays, recipe.punchingRate, recipe.additionalProcessCost);
+    setPunchingDays(p.days);
+    document.getElementById('punchingRate').value = p.rate;
+    renderMaterials();
+    calculate();
+  }
+
+  document.getElementById('productSearch').addEventListener('input', (e) => {
+    document.getElementById('productSelect').value = '';
+    renderProductSuggestions(e.target.value);
+  });
+  document.getElementById('productSearch').addEventListener('focus', (e) => {
+    renderProductSuggestions(e.target.value);
+  });
+  document.addEventListener('click', (e) => {
+    if (!document.getElementById('productSelectWrap').contains(e.target)) {
+      document.getElementById('productSuggestions').style.display = 'none';
+    }
+  });
+
+  function currentProductName() {
+    const isNew = document.getElementById('newProductToggle').checked;
+    return isNew ? document.getElementById('newProductName').value.trim()
+                 : (document.getElementById('productSelect').value || document.getElementById('productSearch').value.trim());
+  }
+
+  function resetCalculatorForm() {
+    document.getElementById('length').value = 0;
+    document.getElementById('width').value = 0;
+    document.getElementById('thickness').value = 0;
+    document.getElementById('quantity').value = 10000;
+    document.getElementById('waste').value = 10;
+    document.getElementById('kgHr').value = 1;
+    document.getElementById('salaryPerson').value = 0;
+    document.getElementById('electricity').value = 0;
+    document.getElementById('bldgRent').value = 0;
+    document.getElementById('markup').value = 0;
+    document.getElementById('specs').value = '';
+    document.getElementById('newProductName').value = '';
+    document.getElementById('newProductToggle').checked = false;
+    setPunchingDays(0);
+    document.getElementById('punchingRate').value = 0;
+    toggleNewProduct();
+    document.getElementById('productSelect').value = '';
+    document.getElementById('productSearch').value = '';
+    document.getElementById('saveStatus').textContent = '';
+    selectedMaterials = [];
+    Object.keys(materialValues).forEach(k => delete materialValues[k]);
+    setTxnEditMode(null);
+    renderMaterials();
+    calculate();
+  }
+
+  // ---------- view / edit a saved transaction in the Calculator form ----------
+  let editingTxnCode = null;   // the TXN code being edited, or null when creating a new one
+
+  /** Switches the Calculator between "new transaction" (code = null) and "editing TXN-..." mode. */
+  function setTxnEditMode(code, row) {
+    editingTxnCode = code || null;
+    const banner = document.getElementById('txnEditBanner');
+    const btn = document.getElementById('saveTxnBtn');
+    const cancelBtn = document.getElementById('cancelTxnBtn');
+    if (editingTxnCode) {
+      document.getElementById('txnEditCode').textContent = editingTxnCode;
+      const made = row && row['Date'] ? new Date(row['Date']).toLocaleDateString() : '';
+      const edited = row && row['Last Edited'] ? ' · last edited ' + new Date(row['Last Edited']).toLocaleString() : '';
+      document.getElementById('txnEditSub').textContent =
+        (made ? 'Saved on ' + made + edited + '. ' : '') +
+        'Change anything below, then press Update Transaction. The code and original date stay the same.';
+      banner.style.display = 'flex';
+      btn.textContent = 'Update Transaction';
+      cancelBtn.style.display = 'inline-block';
+    } else {
+      banner.style.display = 'none';
+      btn.textContent = 'Save Transaction';
+      cancelBtn.style.display = 'none';
+    }
+  }
+
+  function cancelTxnEdit() {
+    resetCalculatorForm();
+    showTab('txn');
+  }
+
+  /** The materials a saved transaction used, read from its "<name> %" / "<name> Cost/Kg"
+   *  columns. Materials left at 0% and ₱0 weren't part of that mix, so they're skipped. */
+  function materialsFromTxnRow(r) {
+    const out = [];
+    Object.keys(r).forEach(k => {
+      if (!k.endsWith(' %') || k === 'Waste %' || k === 'Markup %') return;
+      const name = k.slice(0, -2);
+      if (!((name + ' Cost/Kg') in r)) return;
+      const pct = Number(r[k]) || 0;
+      const cost = Number(r[name + ' Cost/Kg']) || 0;
+      if (pct || cost) out.push({ name, pct, cost });
+    });
+    return out;
+  }
+
+  /** Opens a saved transaction in the Calculator form, filled in exactly as it was saved. */
+  function editTxn(code) {
+    const r = txnRowsCache.find(x => String(x['Transaction Code']) === String(code));
+    if (!r) { showError('open transaction', new Error('Transaction ' + code + ' not found — press Refresh')); return; }
+
+    resetCalculatorForm();
+    const setVal = (id, v, dflt) => {
+      document.getElementById(id).value = (v === '' || v === null || v === undefined) ? dflt : v;
+    };
+    setVal('length', r['Length'], 0);
+    setVal('width', r['Width'], 0);
+    setVal('thickness', r['Thickness'], 0);
+    setVal('quantity', r['Quantity'], 0);
+    setVal('waste', r['Waste %'], 0);
+    setVal('kgHr', r['Machine Kg/Hr'], 1);
+    setVal('salaryPerson', r['Salary Per Person'], 0);
+    setVal('electricity', r['Electricity Per Unit'], 0);
+    setVal('bldgRent', r['Bldg Rent'], 0);
+    setVal('markup', r['Markup %'], 0);
+    setVal('specs', r['Specification'], '');
+    const p = punchingFromSaved(r['Punching Days'], r['Punching Salary Per Day'], r['Additional Process Cost']);
+    setPunchingDays(p.days);
+    document.getElementById('punchingRate').value = p.rate;
+
+    const productName = String(r['Product Name'] || '');
+    document.getElementById('productSelect').value = productName;
+    document.getElementById('productSearch').value = productName;
+
+    materialsFromTxnRow(r).forEach(m => {
+      if (!MATERIALS.includes(m.name)) MATERIALS.push(m.name);
+      selectedMaterials.push(m.name);
+      materialValues[m.name] = { pct: m.pct, cost: m.cost };
+    });
+
+    setTxnEditMode(String(code), r);
+    renderMaterials();
+    calculate();
+    showTab('calc');
+    window.scrollTo(0, 0);
+  }
+
+  function saveCurrent() {
+    const c = calculate();
+    const productName = currentProductName();
+    const statusEl = document.getElementById('saveStatus');
+    const btn = document.getElementById('saveTxnBtn');
+    if (!productName) {
+      statusEl.textContent = 'Enter or select a product name';
+      statusEl.className = 'status err';
+      return;
+    }
+    const payload = {
+      productName: productName,
+      specification: document.getElementById('specs').value,
+      length: num('length'), width: num('width'), thickness: num('thickness'),
+      quantity: num('quantity'), waste: num('waste'), totalKg: c.totalKg,
+      materials: c.materials,
+      kgHr: c.kgHr, salaryPerson: c.salaryPerson, salaryResult: c.salaryResult,
+      electricity: c.electricity, elecResult: c.elecResult,
+      bldgRent: c.bldgRent, bldgResult: c.bldgResult,
+      punchingDays: c.punchingDays, punchingRate: c.punchingRate, punchingCost: c.punchingCost,
+      totalExpenses: c.totalExpenses, costPerPiece: c.costPerPiece, vat: c.vat,
+      markup: c.markup, sellingPrice: c.sellingPrice, profit: c.profit
+    };
+    const editCode = editingTxnCode;
+    statusEl.textContent = editCode ? 'Updating...' : 'Saving...';
+    statusEl.className = 'status';
+    btn.disabled = true;
+    const runner = google.script.run
+      .withSuccessHandler(res => {
+        btn.disabled = false;
+        if (res && res.success === false) {
+          statusEl.textContent = res.error || 'Could not save';
+          statusEl.className = 'status err';
+          return;
+        }
+        statusEl.textContent = '';
+        loadProductDropdown();
+        resetCalculatorForm();
+        if (editCode) {
+          loadTransactions();
+          showTab('txn');
+          showSavedModal('Transaction Updated', res.code);
+        } else {
+          showSavedModal('Transaction Saved', res.code);
+        }
+      })
+      .withFailureHandler(err => {
+        btn.disabled = false;
+        statusEl.textContent = 'Error: ' + err.message;
+        statusEl.className = 'status err';
+        showError(editCode ? 'update transaction' : 'save transaction', err);
+      });
+    if (editCode) runner.updateTransaction(editCode, payload);
+    else runner.saveTransaction(payload);
+  }
+
+  // ---------- products tab ----------
+  let productsTableData = [];
+
+  function loadProducts() {
+    const body = document.getElementById('productsBody');
+    const empty = document.getElementById('productsEmpty');
+    body.innerHTML = '<tr><td colspan="3" style="color:#6b7785;">Loading...</td></tr>';
+    empty.style.display = 'none';
+    google.script.run
+      .withSuccessHandler(products => {
+        try {
+          productsTableData = products || [];
+          document.getElementById('productListSearch').value = '';
+          renderProductsTable(productsTableData);
+        } catch (e) {
+          showError('rendering products list', e);
+        }
+      })
+      .withFailureHandler(err => {
+        body.innerHTML = '';
+        empty.style.display = 'block';
+        empty.textContent = 'Error loading products — see banner above.';
+        showError('products list', err);
+      })
+      .getProducts();
+  }
+
+  function renderProductsTable(products) {
+    const body = document.getElementById('productsBody');
+    const empty = document.getElementById('productsEmpty');
+    body.innerHTML = '';
+    if (!products || !products.length) {
+      empty.style.display = 'block';
+      empty.textContent = productsTableData.length ? 'No products match your search.' : 'No products yet.';
+      return;
+    }
+    empty.style.display = 'none';
+    products.forEach(p => {
+      const tr = document.createElement('tr');
+      const date = p['Date Added'] ? new Date(p['Date Added']).toLocaleDateString() : '';
+      tr.innerHTML = `<td>${p['Product Name']}</td><td>${p['Specification'] || ''}</td><td>${date}</td>`;
+      body.appendChild(tr);
+    });
+  }
+
+  function filterProductsTable() {
+    const q = document.getElementById('productListSearch').value.trim().toLowerCase();
+    if (!q) { renderProductsTable(productsTableData); return; }
+    const filtered = productsTableData.filter(p =>
+      String(p['Product Name'] || '').toLowerCase().includes(q) ||
+      String(p['Specification'] || '').toLowerCase().includes(q)
+    );
+    renderProductsTable(filtered);
+  }
+
+  function addProductManual() {
+    const name = document.getElementById('p_name').value.trim();
+    const spec = document.getElementById('p_spec').value.trim();
+    if (!name) {
+      document.getElementById('productStatus').textContent = 'Enter a product name';
+      document.getElementById('productStatus').className = 'status err';
+      return;
+    }
+    google.script.run.withSuccessHandler(() => {
+      document.getElementById('productStatus').textContent = 'Added ✓';
+      document.getElementById('productStatus').className = 'status ok';
+      document.getElementById('p_name').value = '';
+      document.getElementById('p_spec').value = '';
+      loadProducts();
+      loadProductDropdown();
+    }).withFailureHandler(err => {
+      document.getElementById('productStatus').textContent = 'Error saving product';
+      document.getElementById('productStatus').className = 'status err';
+      showError('add product', err);
+    }).addProduct(name, spec);
+  }
+
+  // ---------- transactions tab ----------
+  let txnRowsCache = []; // the rows last loaded, so the pencil button can open one without another trip to the server
+
+  /** Sums every per-material "<name> Result" column on a saved transaction row
+   *  (excluding the Salary/Electricity/Bldg Result columns, which aren't
+   *  materials) to get the raw-materials cost total for that transaction. */
+  function txnMaterialCost(r) {
+    let sum = 0;
+    Object.keys(r).forEach(k => {
+      if (!k.endsWith(' Result')) return;
+      if (k === 'Salary Result' || k === 'Electricity Result' || k === 'Bldg Result') return;
+      sum += Number(r[k]) || 0;
+    });
+    return sum;
+  }
+  function loadTransactions() {
+    const body = document.getElementById('txnBody');
+    const empty = document.getElementById('txnEmpty');
+    body.innerHTML = '<tr><td colspan="17" style="color:#6b7785;">Loading...</td></tr>';
+    empty.style.display = 'none';
+    google.script.run
+      .withSuccessHandler(rows => {
+        try {
+          txnRowsCache = rows || [];
+          body.innerHTML = '';
+          if (!txnRowsCache.length) { empty.style.display = 'block'; return; }
+          empty.style.display = 'none';
+          txnRowsCache.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.className = 'clickable';
+            const code = String(r['Transaction Code']);
+            tr.title = 'Click to view / edit ' + code;
+            const date = r['Date'] ? new Date(r['Date']).toLocaleDateString() : '';
+            const edited = r['Last Edited'] ? '<div class="hint">Edited ' + new Date(r['Last Edited']).toLocaleDateString() + '</div>' : '';
+            const matCost = txnMaterialCost(r);
+            const punch = punchingOfRow(r);
+            const addlCost = punch.cost;
+            const addlLabel = esc(punch.label);
+            tr.innerHTML = `
+              <td><button class="icon-btn" title="View / edit ${esc(code)}">✏️</button></td>
+              <td>${esc(code)}</td><td>${date}${edited}</td><td>${esc(r['Product Name'])}</td>
+              <td>${r['Quantity']}</td>
+              <td>${fmt(matCost)}</td><td>${fmt(r['Salary Result'])}</td><td>${fmt(r['Electricity Result'])}</td>
+              <td>${fmt(r['Bldg Result'])}</td><td>${fmt(addlCost)}${addlLabel ? '<div class="hint">' + addlLabel + '</div>' : ''}</td>
+              <td>${fmt(r['Total Expenses'])}</td><td>${fmt(r['Cost Per Piece'])}</td>
+              <td>${fmt(r['12% VAT'])}</td><td>${fmt(r['Markup %'])}</td><td>${fmt(r['Selling Price'])}</td>
+              <td>${fmt(r['Profit'])}</td>
+              <td><button class="danger" onclick="event.stopPropagation(); removeTxn('${esc(code)}')">Delete</button></td>
+            `;
+            tr.addEventListener('click', () => editTxn(code));   // the whole row (pencil included) opens it
+            body.appendChild(tr);
+          });
+        } catch (e) {
+          showError('rendering transactions list', e);
+        }
+      })
+      .withFailureHandler(err => {
+        body.innerHTML = '';
+        empty.style.display = 'block';
+        empty.textContent = 'Error loading transactions — see banner above.';
+        showError('transactions list', err);
+      })
+      .getTransactions();
+  }
+  function removeTxn(code) {
+    if (!confirm('Delete transaction ' + code + '? This also reduces its inventory contribution.')) return;
+    google.script.run.withSuccessHandler(() => {
+      if (editingTxnCode === String(code)) resetCalculatorForm();
+      loadTransactions(); loadInventory();
+    }).withFailureHandler(err => showError('delete transaction', err)).deleteTransaction(code);
+  }
+
+  // ---------- sales tab: record a sale ----------
+  let sellableTxns = [];
+
+  function currentSaleTxn() {
+    const code = document.getElementById('s_txnCode').value;
+    return sellableTxns.find(x => String(x.code) === code) || null;
+  }
+
+  /** Small line under a unit-price box: says whether the sale follows the calculator's
+   *  price or a custom price, and offers a one-click way back to the calculator price. */
+  function priceHintHtml(txn, custom, resetCall) {
+    if (!txn) return '';
+    const shown = fmtPrice(txn.sellingPrice);
+    if (!custom) return 'Following the calculator price (₱' + shown + ')';
+    return 'Calculator price: ₱' + shown +
+           ' · <button type="button" class="link-btn" onclick="' + resetCall + '">Use calculator price</button>';
+  }
+
+  /** Total for the form being filled in: 's' = Record a Sale, 'e' = Edit pop-up. */
+  function formTotal(prefix) {
+    if (prefix === 'e') return editTotal();
+    return round2(saleUnitPrice() * num('s_qty')); // same round2 as the Calculator
+  }
+
+  /** The price box shows 4 decimals. It starts at the transaction's calculator price (rounded to
+   *  4 decimals) and stays that way until you type your own price. */
+  let salePriceCustom = false;
+  function saleUnitPrice() {
+    const txn = currentSaleTxn();
+    if (txn && !salePriceCustom) return roundPrice(txn.sellingPrice);
+    return roundPrice(num('s_price'));
+  }
+
+  /** Keeps Payment Status, Amount Paid and Balance in step with each other.
+   *  Paid    -> Amount Paid becomes the full total (locked)
+   *  Pending -> Amount Paid is 0 (locked)
+   *  Partial -> you type the amount received so far; typing the full total flips it to Paid.
+   *  trigger: 'status' (dropdown changed), 'amount' (typing the amount), 'total' (qty/price changed). */
+  function syncPayment(prefix, trigger) {
+    const statusEl = document.getElementById(prefix + '_payment');
+    const paidEl = document.getElementById(prefix + '_paid');
+    const hintEl = document.getElementById(prefix + '_balHint');
+    const total = formTotal(prefix);
+    let status = statusEl.value;
+    let paid = parseFloat(paidEl.value) || 0;
+
+    if (trigger === 'status' && status === 'Partial' && statusEl.dataset.prev !== 'Partial') {
+      paidEl.value = ''; // switching to Partial: start empty so the amount is typed in
+      paid = 0;
+    }
+    if (status === 'Partial' && total > 0 && paid >= total) status = 'Paid';
+    if (status === 'Paid') paid = total;
+    else if (status === 'Pending') paid = 0;
+
+    statusEl.value = status;
+    statusEl.dataset.prev = status;
+    paidEl.disabled = (status !== 'Partial');
+    if (status !== 'Partial') paidEl.value = paid.toFixed(2);
+
+    hintEl.textContent = (status === 'Partial' && !paid)
+      ? 'Enter the amount received so far'
+      : 'Balance: ₱' + fmtMoney(roundMoney(total - paid));
+  }
+
+  /** Only these three statuses are recognised; anything else is worked out from the amount paid. */
+  function statusText(r) {
+    const s = String(r['Payment Status'] || '').trim().toLowerCase();
+    return (s === 'paid' || s === 'pending' || s === 'partial') ? s : '';
+  }
+  /** Money received on a sale. Sales from before Amount Paid existed: Paid = full total, anything else 0. */
+  function paidAmountOf(r) {
+    const total = saleAmount(r);
+    const raw = r['Amount Paid'];
+    if (raw !== '' && raw !== null && raw !== undefined && !isNaN(Number(raw))) {
+      return Math.max(0, Math.min(Number(raw), total));
+    }
+    return statusText(r) === 'paid' ? total : 0;
+  }
+  function saleStatusOf(r) {
+    const st = statusText(r);
+    if (st) return st.charAt(0).toUpperCase() + st.slice(1);
+    const paid = paidAmountOf(r), total = saleAmount(r);
+    return (total > 0 && paid >= total) ? 'Paid' : (paid > 0 ? 'Partial' : 'Pending');
+  }
+
+  function updateSaleTotal() {
+    document.getElementById('s_total').value = fmtMoney(formTotal('s'));
+    const txn = currentSaleTxn();
+    document.getElementById('s_priceHint').innerHTML = txn
+      ? priceHintHtml(txn, salePriceCustom, 'resetSalePrice()')
+      : 'Pick a transaction to load its calculator price.';
+    syncPayment('s', 'total');
+  }
+
+  function resetSalePrice() {
+    const txn = currentSaleTxn();
+    if (!txn) return;
+    salePriceCustom = false;
+    document.getElementById('s_price').value = fmtPrice(txn.sellingPrice);
+    updateSaleTotal();
+  }
+
+  function clearSaleFields() {
+    salePriceCustom = false;
+    ['s_product', 's_price', 's_stock'].forEach(id => { document.getElementById(id).value = ''; });
+    updateSaleTotal();
+  }
+
+  function loadSalesForm() {
+    const sel = document.getElementById('s_txnCode');
+    const prev = sel.value; // keep the current pick when the list refreshes
+    google.script.run.withSuccessHandler(txns => {
+      sellableTxns = txns || [];
+      sel.innerHTML = '<option value="">-- select a transaction --</option>';
+      sellableTxns.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = String(t.code);
+        opt.textContent = String(t.code) + ' — ' + String(t.productName) + ' (stock: ' + t.currentStock + ')';
+        sel.appendChild(opt);
+      });
+      const still = prev && sellableTxns.find(t => String(t.code) === prev);
+      if (still) {
+        sel.value = prev;
+        document.getElementById('s_stock').value = still.currentStock; // refresh stock only; keep any custom price
+        updateSaleTotal();
+      } else {
+        clearSaleFields();
+      }
+    }).withFailureHandler(err => showError('sellable transactions', err)).getSellableTransactions();
+  }
+
+  function onSaleTxnChange() {
+    const t = currentSaleTxn();
+    if (!t) { clearSaleFields(); return; }
+    document.getElementById('s_product').value = t.productName;
+    salePriceCustom = false;
+    document.getElementById('s_price').value = fmtPrice(t.sellingPrice); // the calculator's price, shown to 4 decimals
+    document.getElementById('s_stock').value = t.currentStock;
+    updateSaleTotal();
+  }
+
+  document.getElementById('s_qty').addEventListener('input', updateSaleTotal);
+  document.getElementById('s_price').addEventListener('input', () => { salePriceCustom = true; updateSaleTotal(); });
+  document.getElementById('s_paid').addEventListener('input', () => syncPayment('s', 'amount'));
+  // tidy any price typed with more than 4 decimals once you leave the box
+  ['s_price', 'e_price'].forEach(id => {
+    document.getElementById(id).addEventListener('change', e => {
+      if (e.target.value !== '') e.target.value = fmtPrice(roundPrice(e.target.value));
+    });
+  });
+
+  function saveSaleForm() {
+    const payload = {
+      transactionCode: document.getElementById('s_txnCode').value,
+      quantitySold: num('s_qty'),
+      unitPrice: salePriceCustom ? roundPrice(num('s_price')) : '', // blank = the calculator's price
+      customerName: document.getElementById('s_customer').value,
+      paymentStatus: document.getElementById('s_payment').value,
+      amountPaid: num('s_paid'),
+      notes: document.getElementById('s_notes').value
+    };
+    const statusEl = document.getElementById('saleStatus');
+    if (!payload.transactionCode) {
+      statusEl.textContent = 'Select a transaction code';
+      statusEl.className = 'status err';
+      return;
+    }
+    if (!(saleUnitPrice() > 0)) {
+      statusEl.textContent = 'Enter a unit price greater than 0';
+      statusEl.className = 'status err';
+      return;
+    }
+    if (payload.paymentStatus === 'Partial' && !(payload.amountPaid > 0 && payload.amountPaid < formTotal('s'))) {
+      statusEl.textContent = 'For a partial payment, enter the amount paid (more than 0 and less than the total)';
+      statusEl.className = 'status err';
+      return;
+    }
+    statusEl.textContent = 'Saving...';
+    statusEl.className = 'status';
+    google.script.run
+      .withSuccessHandler(res => {
+        if (!res.success) {
+          statusEl.textContent = res.error;
+          statusEl.className = 'status err';
+          return;
+        }
+        statusEl.textContent = '';
+        document.getElementById('s_txnCode').value = '';
+        clearSaleFields();
+        document.getElementById('s_qty').value = 0;
+        document.getElementById('s_customer').value = '';
+        document.getElementById('s_notes').value = '';
+        document.getElementById('s_payment').value = 'Paid';
+        document.getElementById('s_paid').value = '';
+        updateSaleTotal();
+        loadSalesForm();
+        loadSalesHistory();
+        loadInventory();
+        showSavedModal('Sale Recorded', res.code);
+      })
+      .withFailureHandler(err => {
+        statusEl.textContent = 'Error: ' + err.message;
+        statusEl.className = 'status err';
+        showError('save sale', err);
+      })
+      .saveSale(payload);
+  }
+
+  // ---------- sales tab: history + edit pop-up ----------
+  let salesData = [];
+
+  /** The company is VAT-registered and selling prices already carry the 12% VAT
+   *  (the calculator builds it in), so the VAT inside a sale's Total is Total x 12/112. */
+  const VAT_RATE = 0.12;
+  function vatIncluded(total) { return roundMoney(total * VAT_RATE / (1 + VAT_RATE)); }
+  /** Amount before VAT, so that netOfVat + vatIncluded always equals the Total exactly. */
+  function netOfVat(total) { return roundMoney(total - vatIncluded(total)); }
+
+  /** Payment cell: status badge, plus what has been paid / what is still owed. */
+  function paymentCell(r) {
+    const status = saleStatusOf(r);
+    const total = saleAmount(r), paid = paidAmountOf(r);
+    const cls = status === 'Paid' ? 'ok' : (status === 'Partial' ? 'warn' : 'low');
+    let extra = '';
+    if (status === 'Partial') {
+      extra = '<div class="hint">Paid ₱' + fmtMoney(paid) + ' · Bal ₱' + fmtMoney(roundMoney(total - paid)) + '</div>';
+    } else if (status === 'Pending') {
+      extra = '<div class="hint">Bal ₱' + fmtMoney(total) + '</div>';
+    }
+    return '<span class="badge ' + cls + '">' + status + '</span>' + extra;
+  }
+
+  function loadSalesHistory() {
+    google.script.run.withSuccessHandler(rows => {
+      salesData = rows || [];
+      renderSalesSummary();
+      const body = document.getElementById('salesBody');
+      const empty = document.getElementById('salesEmpty');
+      body.innerHTML = '';
+      if (!salesData.length) { empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      salesData.forEach(r => {
+        const code = String(r['Sale Code']);
+        const qty = Number(r['Quantity Sold']) || 0;
+        const price = Number(r['Unit Selling Price']) || 0;
+        const total = saleAmount(r);
+        // show "price × qty" only when it really adds up to the recorded total (older sales may not)
+        const working = Math.abs(roundMoney(roundPrice(price) * qty) - total) < 0.005
+          ? '<div class="hint">' + fmtPrice(price) + ' × ' + qty.toLocaleString() + '</div>' : '';
+        const date = r['Date'] ? new Date(r['Date']).toLocaleDateString() : '';
+        const tr = document.createElement('tr');
+        tr.className = 'clickable';
+        tr.title = 'Click to edit this sale';
+        tr.innerHTML = `
+          <td>${esc(code)}</td><td>${date}</td><td>${esc(r['Transaction Code'])}</td>
+          <td>${esc(r['Customer Name'])}</td><td>${esc(r['Product Name'])}</td><td>${qty.toLocaleString()}</td>
+          <td>${fmtPrice(price)}</td>
+          <td>${fmtMoney(netOfVat(total))}</td>
+          <td>${fmtMoney(vatIncluded(total))}</td>
+          <td class="total-cell"><strong>₱${fmtMoney(total)}</strong>${working}</td>
+          <td>${paymentCell(r)}</td>
+          <td><button class="danger" onclick="event.stopPropagation(); removeSale('${esc(code)}')">Delete</button></td>
+        `;
+        tr.addEventListener('click', () => openEditSale(code));
+        body.appendChild(tr);
+      });
+    }).withFailureHandler(err => showError('sales history', err)).getSales();
+  }
+
+  function removeSale(code) {
+    if (!confirm('Delete sale ' + code + '? Stock will be restored.')) return;
+    google.script.run.withSuccessHandler(() => { loadSalesHistory(); loadInventory(); loadSalesForm(); })
+      .withFailureHandler(err => showError('delete sale', err)).deleteSale(code);
+  }
+
+  let editingSale = null;
+  let editMaxQty = null;
+  // 'keep' = leave the recorded price alone, 'custom' = a price typed in, 'markup' = back to the calculator price
+  let editPriceMode = 'keep';
+
+  function editingTxn() {
+    if (!editingSale) return null;
+    return sellableTxns.find(t => String(t.code) === String(editingSale['Transaction Code'])) || null;
+  }
+
+  function openEditSale(code) {
+    const r = salesData.find(x => String(x['Sale Code']) === String(code));
+    if (!r) return;
+    editingSale = r;
+    editPriceMode = 'keep';
+
+    document.getElementById('e_codeLabel').textContent = code;
+    document.getElementById('e_summary').textContent =
+      String(r['Product Name'] || '') + '  •  ' + String(r['Transaction Code'] || '');
+
+    const payEl = document.getElementById('e_payment');
+    const status = saleStatusOf(r);
+    const paidSoFar = paidAmountOf(r);
+    payEl.value = status;
+    payEl.dataset.prev = status;
+    // a Partial sale from before Amount Paid existed has no amount yet — leave it blank to be entered
+    document.getElementById('e_paid').value = (status === 'Partial' && paidSoFar > 0) ? paidSoFar.toFixed(2) : '';
+
+    const qty = Number(r['Quantity Sold']) || 0;
+    document.getElementById('e_qty').value = qty;
+    document.getElementById('e_price').value = fmtPrice(Number(r['Unit Selling Price']) || 0);
+    document.getElementById('e_customer').value = r['Customer Name'] || '';
+    document.getElementById('e_notes').value = r['Notes'] || '';
+
+    const t = editingTxn();
+    if (t) {
+      editMaxQty = (Number(t.currentStock) || 0) + qty;
+      document.getElementById('e_qtyHint').textContent = 'Up to ' + editMaxQty.toLocaleString() + ' pcs (stock left + this sale)';
+    } else {
+      editMaxQty = null;
+      document.getElementById('e_qtyHint').textContent = '';
+    }
+
+    document.getElementById('e_status').textContent = '';
+    document.getElementById('e_status').className = 'status';
+    document.getElementById('e_saveBtn').disabled = false;
+    updateEditTotal();
+    document.getElementById('editSaleOverlay').style.display = 'flex';
+  }
+
+  function closeEditSale() {
+    document.getElementById('editSaleOverlay').style.display = 'none';
+    editingSale = null;
+  }
+
+  /** The unit price the edit will use. */
+  function editUnitPrice() {
+    const t = editingTxn();
+    if (editPriceMode === 'markup' && t) return roundPrice(t.sellingPrice);
+    if (editPriceMode === 'custom') return roundPrice(num('e_price'));
+    return Number(editingSale['Unit Selling Price']) || 0;
+  }
+
+  /** True when the sale is not following the calculator's price (so the reset link is offered). */
+  function editIsCustom() {
+    const t = editingTxn();
+    if (!t) return false;
+    return Math.abs(editUnitPrice() - roundPrice(t.sellingPrice)) > 0.00005; // within the 4th decimal = following it
+  }
+
+  function editTotal() {
+    if (!editingSale) return 0;
+    const price = editUnitPrice(), qty = num('e_qty');
+    // price and quantity untouched -> the recorded total stays exactly as it was
+    if (price === (Number(editingSale['Unit Selling Price']) || 0) && qty === (Number(editingSale['Quantity Sold']) || 0)) {
+      return saleAmount(editingSale);
+    }
+    return round2(price * qty); // same round2 as the Calculator
+  }
+
+  function updateEditTotal() {
+    const qty = num('e_qty'), price = editUnitPrice();
+    const total = editTotal();
+    document.getElementById('e_total').textContent = '₱' + fmtMoney(total);
+    document.getElementById('e_formula').textContent = Math.abs(round2(price * qty) - total) < 0.005
+      ? fmtPrice(price) + ' × ' + qty.toLocaleString() + ' pcs'
+      : 'Total as recorded — it changes if you edit the price or quantity';
+    document.getElementById('e_priceHint').innerHTML = priceHintHtml(editingTxn(), editIsCustom(), 'resetEditPrice()');
+    syncPayment('e', 'total');
+  }
+
+  function resetEditPrice() {
+    const t = editingTxn();
+    if (!t) return;
+    editPriceMode = 'markup';
+    document.getElementById('e_price').value = fmtPrice(t.sellingPrice);
+    updateEditTotal();
+  }
+
+  document.getElementById('e_qty').addEventListener('input', updateEditTotal);
+  document.getElementById('e_price').addEventListener('input', () => { editPriceMode = 'custom'; updateEditTotal(); });
+  document.getElementById('e_paid').addEventListener('input', () => syncPayment('e', 'amount'));
+
+  // close on Escape, or when clicking the dark backdrop (not when a text-select drag ends there)
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeEditSale(); closeInventoryDetail(); } });
+  (function () {
+    const overlay = document.getElementById('editSaleOverlay');
+    let downOnBackdrop = false;
+    overlay.addEventListener('mousedown', e => { downOnBackdrop = (e.target === overlay); });
+    overlay.addEventListener('click', e => { if (e.target === overlay && downOnBackdrop) closeEditSale(); });
+  })();
+  (function () {
+    const overlay = document.getElementById('invDetailOverlay');
+    let downOnBackdrop = false;
+    overlay.addEventListener('mousedown', e => { downOnBackdrop = (e.target === overlay); });
+    overlay.addEventListener('click', e => { if (e.target === overlay && downOnBackdrop) closeInventoryDetail(); });
+  })();
+
+  function saveSaleEdit() {
+    if (!editingSale) return;
+    const statusEl = document.getElementById('e_status');
+    const btn = document.getElementById('e_saveBtn');
+    const payload = {
+      quantitySold: num('e_qty'),
+      unitPrice: editPriceMode === 'custom' ? roundPrice(num('e_price')) : '',
+      useMarkupPrice: editPriceMode === 'markup',
+      paymentStatus: document.getElementById('e_payment').value,
+      amountPaid: num('e_paid'),
+      customerName: document.getElementById('e_customer').value,
+      notes: document.getElementById('e_notes').value
+    };
+    if (!(payload.quantitySold > 0)) {
+      statusEl.textContent = 'Enter a quantity greater than 0';
+      statusEl.className = 'status err';
+      return;
+    }
+    if (!(editUnitPrice() > 0)) {
+      statusEl.textContent = 'Enter a unit price greater than 0';
+      statusEl.className = 'status err';
+      return;
+    }
+    if (payload.paymentStatus === 'Partial' && !(payload.amountPaid > 0 && payload.amountPaid < editTotal())) {
+      statusEl.textContent = 'For a partial payment, enter the amount paid (more than 0 and less than the total)';
+      statusEl.className = 'status err';
+      return;
+    }
+    const code = String(editingSale['Sale Code']);
+    statusEl.textContent = 'Saving...';
+    statusEl.className = 'status';
+    btn.disabled = true;
+    google.script.run
+      .withSuccessHandler(res => {
+        btn.disabled = false;
+        if (!res.success) {
+          statusEl.textContent = res.error;
+          statusEl.className = 'status err';
+          return;
+        }
+        closeEditSale();
+        loadSalesHistory();
+        loadSalesForm();
+        loadInventory();
+        showSavedModal('Sale Updated', code);
+      })
+      .withFailureHandler(err => {
+        btn.disabled = false;
+        statusEl.textContent = 'Error: ' + err.message;
+        statusEl.className = 'status err';
+        showError('update sale', err);
+      })
+      .updateSale(code, payload);
+  }
+
+  // ---------- sales tab: summary by date range ----------
+  /** Local yyyy-mm-dd, the format <input type="date"> uses. */
+  function ymd(d) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function setSummaryRange(kind) {
+    const now = new Date();
+    let from = '', to = '';
+    if (kind === 'today') {
+      from = to = ymd(now);
+    } else if (kind === 'month') {
+      from = ymd(new Date(now.getFullYear(), now.getMonth(), 1));
+      to = ymd(now);
+    } else if (kind === 'lastmonth') {
+      from = ymd(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+      to = ymd(new Date(now.getFullYear(), now.getMonth(), 0));
+    } else if (kind === 'year') {
+      from = ymd(new Date(now.getFullYear(), 0, 1));
+      to = ymd(now);
+    } // 'all' leaves both blank = no date limit
+    document.getElementById('sum_from').value = from;
+    document.getElementById('sum_to').value = to;
+    renderSalesSummary();
+  }
+
+  function saleAmount(r) {
+    const hasTotal = r['Total Amount'] !== '' && r['Total Amount'] !== null && r['Total Amount'] !== undefined;
+    return hasTotal ? (Number(r['Total Amount']) || 0)
+                    : roundMoney((Number(r['Unit Selling Price']) || 0) * (Number(r['Quantity Sold']) || 0));
+  }
+
+  function renderSalesSummary() {
+    const fromVal = document.getElementById('sum_from').value;
+    const toVal = document.getElementById('sum_to').value;
+    const from = fromVal ? new Date(fromVal + 'T00:00:00') : null;
+    const to = toVal ? new Date(toVal + 'T23:59:59.999') : null;
+    const note = document.getElementById('sum_note');
+
+    let totalAmt = 0, totalNet = 0, totalN = 0;   // every sale, paid or not
+    let paidAmt = 0, paidNet = 0, paidFullN = 0;  // money already received
+    let owedAmt = 0, owedNet = 0, owedN = 0;      // balance still to collect
+    let partN = 0;                                // sales marked Partial
+
+    if (from && to && from > to) {
+      note.textContent = '“From” is after “To” — pick a valid range.';
+    } else {
+      salesData.forEach(r => {
+        if (!r['Date']) return;
+        const d = new Date(r['Date']);
+        if (from && d < from) return;
+        if (to && d > to) return;
+        const amt = saleAmount(r);
+        const paid = paidAmountOf(r);
+        const bal = roundMoney(amt - paid);
+        totalAmt += amt;  totalNet += netOfVat(amt);  totalN++;
+        paidAmt += paid;  paidNet += netOfVat(paid);
+        owedAmt += bal;   owedNet += netOfVat(amt) - netOfVat(paid);
+        if (bal > 0) owedN++; else paidFullN++;
+        if (saleStatusOf(r) === 'Partial') partN++;
+      });
+      note.textContent = (fromVal || toVal)
+        ? 'Sales dated ' + (fromVal || 'the beginning') + ' to ' + (toVal || 'today') + ' (by date of sale)'
+        : 'All sales, any date';
+    }
+
+    const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+    const net = n => ' · Net of VAT ₱' + fmtMoney(roundMoney(n));
+    document.getElementById('sum_total').textContent = '₱' + fmtMoney(roundMoney(totalAmt));
+    document.getElementById('sum_totalSub').textContent = plural(totalN, 'sale') + net(totalNet);
+    document.getElementById('sum_paid').textContent = '₱' + fmtMoney(roundMoney(paidAmt));
+    document.getElementById('sum_paidSub').textContent = plural(paidFullN, 'sale') + ' paid in full' + net(paidNet);
+    document.getElementById('sum_ar').textContent = '₱' + fmtMoney(roundMoney(owedAmt));
+    document.getElementById('sum_arSub').textContent = plural(owedN, 'sale') + ' with a balance' + net(owedNet);
+    document.getElementById('sum_partialCount').textContent = partN.toLocaleString();
+    document.getElementById('sum_partialSub').textContent = 'Transactions with partial payment';
+  }
+
+  // ---------- inventory tab ----------
+  // ---------- inventory detail pop-up (click a product's row to see its sales) ----------
+  let inventorySalesData = [];
+
+  function renderInventory(rows, sales) {
+    inventorySalesData = sales || [];
+    const body = document.getElementById('invBody');
+    const empty = document.getElementById('invEmpty');
+    body.innerHTML = '';
+    if (!rows || !rows.length) { empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    rows.forEach(r => {
+      const stock = Number(r['Current Stock']) || 0;
+      const badge = stock <= 0 ? '<span class="badge low">Out of stock</span>'
+                  : stock < 100 ? '<span class="badge low">Low</span>'
+                  : '<span class="badge ok">In stock</span>';
+      const lastProd = r['Last Production Date'] ? new Date(r['Last Production Date']).toLocaleDateString() : '';
+      const lastSale = r['Last Sale Date'] ? new Date(r['Last Sale Date']).toLocaleDateString() : '';
+      const tr = document.createElement('tr');
+      tr.className = 'clickable';
+      tr.title = 'Click to see sales details for ' + r['Product Name'];
+      tr.innerHTML = `
+        <td>${r['Product Name']}</td><td>${stock} ${badge}</td>
+        <td>${r['Total Produced']}</td><td>${r['Total Sold']}</td>
+        <td>${lastProd}</td><td>${lastSale}</td>
+      `;
+      tr.addEventListener('click', () => openInventoryDetail(r['Product Name']));
+      body.appendChild(tr);
+    });
+  }
+
+  function loadInventory() {
+    google.script.run.withSuccessHandler(rows => {
+      google.script.run.withSuccessHandler(sales => {
+        renderInventory(rows, sales || []);
+      }).withFailureHandler(err => { renderInventory(rows, []); showError('inventory sales detail', err); }).getSales();
+    }).withFailureHandler(err => showError('inventory', err)).getInventory();
+  }
+
+  /** Opens a click-to-view pop-up listing every sale of one product: date,
+   *  customer, qty sold, unit price and the line total — the "tiny details"
+   *  the Inventory tab used to only show on hover. */
+  function openInventoryDetail(productName) {
+    const rows = inventorySalesData.filter(s => String(s['Product Name']) === String(productName))
+      .sort((a, b) => new Date(b['Date']) - new Date(a['Date']));
+
+    document.getElementById('inv_productName').textContent = productName;
+    document.getElementById('inv_summary').textContent = rows.length
+      ? rows.length + (rows.length === 1 ? ' sale recorded' : ' sales recorded')
+      : 'No sales recorded yet';
+
+    const body = document.getElementById('inv_salesBody');
+    const empty = document.getElementById('inv_salesEmpty');
+    body.innerHTML = '';
+    if (!rows.length) {
+      empty.style.display = 'block';
+    } else {
+      empty.style.display = 'none';
+      rows.forEach(s => {
+        const d = s['Date'] ? new Date(s['Date']).toLocaleDateString() : '';
+        const cust = s['Customer Name'] || 'Walk-in';
+        const qty = Number(s['Quantity Sold']) || 0;
+        const price = Number(s['Unit Selling Price']) || 0;
+        const total = Number(s['Total Amount']) || roundMoney(price * qty);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${esc(d)}</td><td>${esc(cust)}</td><td>${qty.toLocaleString()}</td>
+          <td>₱${fmtPrice(price)}</td><td>₱${fmtMoney(roundMoney(total))}</td>`;
+        body.appendChild(tr);
+      });
+    }
+    document.getElementById('invDetailOverlay').style.display = 'flex';
+  }
+
+  function closeInventoryDetail() {
+    document.getElementById('invDetailOverlay').style.display = 'none';
+  }
+
+  // ---------- dashboard ----------
+  let dashboardData = [];
+  google.charts.load('current', {packages: ['corechart']});
+
+  function loadDashboard() {
+    google.script.run.withSuccessHandler(data => {
+      dashboardData = data;
+      const sel = document.getElementById('monthSelect');
+      sel.innerHTML = '';
+      data.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.month;
+        opt.textContent = m.month;
+        sel.appendChild(opt);
+      });
+      if (data.length) sel.value = data[data.length - 1].month;
+      renderMonthDetail();
+      drawChart();
+    }).withFailureHandler(err => showError('dashboard', err)).getDashboardData();
+  }
+
+  function drawChart() {
+    if (!dashboardData.length || !google.visualization) return;
+    const dt = new google.visualization.DataTable();
+    dt.addColumn('string', 'Month');
+    dt.addColumn('number', 'Expenses');
+    dt.addColumn('number', 'Revenue');
+    dt.addColumn('number', 'Profit');
+    dashboardData.forEach(m => dt.addRow([m.month, m.totalExpenses, m.totalRevenue, m.totalProfit]));
+    const chart = new google.visualization.ColumnChart(document.getElementById('dashChart'));
+    chart.draw(dt, {
+      legend: { position: 'top' },
+      colors: ['#d64545', '#2e6f95', '#2f9e44'],
+      chartArea: { width: '85%', height: '70%' },
+      backgroundColor: 'transparent'
+    });
+  }
+
+  function renderMonthDetail() {
+    const key = document.getElementById('monthSelect').value;
+    const m = dashboardData.find(x => x.month === key);
+    const body = document.getElementById('d_products');
+    const empty = document.getElementById('d_empty');
+    body.innerHTML = '';
+    if (!m) {
+      document.getElementById('d_exp').textContent = '0.00';
+      document.getElementById('d_rev').textContent = '0.00';
+      document.getElementById('d_profit').textContent = '0.00';
+      empty.style.display = 'block';
+      return;
+    }
+    document.getElementById('d_exp').textContent = fmt(m.totalExpenses);
+    document.getElementById('d_rev').textContent = fmt(m.totalRevenue);
+    document.getElementById('d_profit').textContent = fmt(m.totalProfit);
+    const names = Object.keys(m.products);
+    if (!names.length) { empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    names.forEach(name => {
+      const p = m.products[name];
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${name}</td><td>${p.qtyProduced}</td><td>${p.qtySold}</td>
+                       <td>${fmt(p.revenue)}</td><td>${fmt(p.profit)}</td>`;
+      body.appendChild(tr);
+    });
+  }
+
+  // ---------- payroll tab: new-entry pop-up ----------
+  const PR_EE = ['pr_sss_ee', 'pr_pagibig_ee', 'pr_philhealth_ee'];   // employee share (deducted from pay)
+  const PR_ER = ['pr_sss_er', 'pr_pagibig_er', 'pr_philhealth_er'];   // employer share (company expense)
+  const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const MAX_PAY_DAYS = 31;
+
+  let prHours = {};        // 'yyyy-mm-dd' -> hours typed, kept while the dates are changed around
+  let prOtherLines = [];   // additional deductions: [{ desc, amount }]
+
+  /** 'yyyy-mm-dd' -> local Date (no timezone shift). */
+  function parseYmd(s) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ''));
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+  }
+
+  /** Dates in the chosen pay period, as 'yyyy-mm-dd' (empty if the range isn't valid). */
+  function payPeriodDates() {
+    const a = parseYmd(document.getElementById('pr_start').value);
+    const b = parseYmd(document.getElementById('pr_end').value);
+    if (!a || !b || b < a) return [];
+    const out = [];
+    for (let d = new Date(a); d <= b && out.length < MAX_PAY_DAYS; d.setDate(d.getDate() + 1)) out.push(ymd(d));
+    return out;
+  }
+
+  /** Hourly rate from the rate type:
+   *    Weekly -> rate ÷ (work days per week × regular hours per day)
+   *    Daily  -> rate ÷ regular hours per day
+   *    Hourly -> rate */
+  function prSettings() {
+    const type = document.getElementById('pr_rateType').value;
+    const rate = num('pr_rate');
+    const hpd = num('pr_hpd') > 0 ? num('pr_hpd') : 8;
+    const dpw = num('pr_dpw') > 0 ? num('pr_dpw') : 6;
+    const mult = num('pr_otMult') > 0 ? num('pr_otMult') : 1.25;
+    const hourly = type === 'Weekly' ? rate / (dpw * hpd) : type === 'Daily' ? rate / hpd : rate;
+    return { type, rate, hpd, dpw, mult, hourly };
+  }
+
+  function onRateTypeChange() {
+    const type = document.getElementById('pr_rateType').value;
+    document.getElementById('pr_rateLabel').textContent =
+      type === 'Weekly' ? 'Rate per Week (₱)' : type === 'Daily' ? 'Rate per Day (₱)' : 'Rate per Hour (₱)';
+    document.getElementById('pr_dpwWrap').style.display = type === 'Weekly' ? '' : 'none';
+    computePayroll();
+  }
+
+  /** Draws one row per date in the pay period, keeping any hours already typed. */
+  function buildPayrollDays() {
+    const dates = payPeriodDates();
+    const body = document.getElementById('pr_daysBody');
+    const empty = document.getElementById('pr_daysEmpty');
+    body.innerHTML = '';
+    const s = document.getElementById('pr_start').value, e = document.getElementById('pr_end').value;
+    if (!dates.length) {
+      empty.style.display = 'block';
+      empty.textContent = (s && e) ? '“To” is before “From” — pick a valid pay period.'
+                                   : 'Pick the pay period above — each date will appear here as a row.';
+      computePayroll();
+      return;
+    }
+    empty.style.display = 'none';
+    dates.forEach(d => {
+      const dt = parseYmd(d);
+      const tr = document.createElement('tr');
+      tr.dataset.date = d;
+      if (dt.getDay() === 0) tr.className = 'weekend';
+      const h = prHours[d];
+      tr.innerHTML = `<td>${dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
+        <td>${DAY_NAMES[dt.getDay()]}</td>
+        <td><input type="number" step="0.5" min="0" max="24" class="pr-hrs" data-date="${d}" value="${h === undefined ? '' : h}" placeholder="0"></td>
+        <td class="r reg">0</td><td class="r ot">0</td><td class="r pay">0.00</td>`;
+      body.appendChild(tr);
+    });
+    body.querySelectorAll('.pr-hrs').forEach(inp => inp.addEventListener('input', () => {
+      const v = parseFloat(inp.value);
+      if (inp.value === '' || isNaN(v)) delete prHours[inp.dataset.date];
+      else prHours[inp.dataset.date] = Math.max(0, Math.min(24, v));
+      computePayroll();
+    }));
+    const span = Math.round((parseYmd(e) - parseYmd(s)) / 864e5) + 1;
+    if (span > MAX_PAY_DAYS) { empty.style.display = 'block'; empty.textContent = 'Only the first ' + MAX_PAY_DAYS + ' days of the period are listed.'; }
+    computePayroll();
+  }
+
+  function renderOtherDeductions() {
+    const body = document.getElementById('pr_otherBody');
+    const ro = prMode === 'view';
+    body.innerHTML = '';
+    prOtherLines.forEach((line, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><input class="desc" placeholder="e.g. Cash advance" value="${esc(line.desc)}"${ro ? ' disabled' : ''}></td>
+        <td class="r"><input type="number" step="0.01" min="0" value="${line.amount || ''}" placeholder="0"${ro ? ' disabled' : ''}></td>
+        <td class="r hint">—</td>
+        <td>${ro ? '' : '<button type="button" class="danger" title="Remove">✕</button>'}</td>`;
+      const [descEl, amtEl] = tr.querySelectorAll('input');
+      descEl.addEventListener('input', () => { line.desc = descEl.value; });
+      amtEl.addEventListener('input', () => { line.amount = parseFloat(amtEl.value) || 0; computePayroll(); });
+      const rm = tr.querySelector('button');
+      if (rm) rm.addEventListener('click', () => { prOtherLines.splice(i, 1); renderOtherDeductions(); computePayroll(); });
+      body.appendChild(tr);
+    });
+  }
+  function addOtherDeduction() {
+    prOtherLines.push({ desc: '', amount: 0 });
+    renderOtherDeductions();
+    const inputs = document.querySelectorAll('#pr_otherBody input.desc');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }
+
+  /** Works out every figure in the pop-up and returns them for saving. */
+  function computePayroll() {
+    const st = prSettings();
+    let regH = 0, otH = 0, daysWorked = 0;
+    const days = [];
+    document.querySelectorAll('#pr_daysBody tr').forEach(tr => {
+      const d = tr.dataset.date;
+      const h = prHours[d] || 0;
+      const reg = Math.min(h, st.hpd), ot = Math.max(0, h - st.hpd);
+      regH += reg; otH += ot;
+      if (h > 0) daysWorked++;
+      days.push({ date: d, hours: h });
+      tr.querySelector('.reg').textContent = reg ? String(reg) : '0';
+      tr.querySelector('.ot').textContent = ot ? String(ot) : '0';
+      tr.querySelector('.pay').textContent = fmtMoney(roundMoney(reg * st.hourly + ot * st.hourly * st.mult));
+      tr.classList.toggle('has-ot', ot > 0);
+    });
+    const regPay = roundMoney(regH * st.hourly);
+    const otPay = roundMoney(otH * st.hourly * st.mult);
+    const gross = roundMoney(regPay + otPay);
+
+    document.getElementById('pr_daysFoot').innerHTML = days.length
+      ? '<tr class="total-row"><td colspan="2">Total (' + daysWorked + (daysWorked === 1 ? ' day' : ' days') + ' worked)</td><td>' +
+        (regH + otH) + ' hrs</td><td class="r">' + regH + '</td><td class="r">' + otH + '</td><td class="r">' + fmtMoney(gross) + '</td></tr>'
+      : '';
+    document.getElementById('pr_hourlyHint').textContent = st.rate > 0
+      ? 'Hourly rate: ₱' + fmtMoney(st.hourly) +
+        (st.type === 'Weekly' ? ' (₱' + fmtMoney(st.rate) + ' ÷ ' + st.dpw + ' days ÷ ' + st.hpd + ' hrs)'
+         : st.type === 'Daily' ? ' (₱' + fmtMoney(st.rate) + ' ÷ ' + st.hpd + ' hrs)' : '') +
+        ' · Overtime: ₱' + fmtMoney(st.hourly * st.mult) + ' per hour for hours beyond ' + st.hpd + ' in a day'
+      : 'Enter the rate to see the hourly and overtime rates.';
+
+    const other = roundMoney(prOtherLines.reduce((t, l) => t + (Number(l.amount) || 0), 0));
+    const ded = roundMoney(PR_EE.reduce((t, id) => t + num(id), 0) + other);
+    const er = roundMoney(PR_ER.reduce((t, id) => t + num(id), 0));
+    const net = roundMoney(gross - ded);
+
+    document.getElementById('pr_eeTotal').textContent = fmtMoney(ded);
+    document.getElementById('pr_erTotal').textContent = fmtMoney(er);
+    document.getElementById('pr_regPay').textContent = fmtMoney(regPay);
+    document.getElementById('pr_regSub').textContent = regH + ' hrs × ₱' + fmtMoney(st.hourly);
+    document.getElementById('pr_otPay').textContent = fmtMoney(otPay);
+    document.getElementById('pr_otSub').textContent = otH + ' hrs × ₱' + fmtMoney(st.hourly * st.mult);
+    document.getElementById('pr_gross').textContent = fmtMoney(gross);
+    document.getElementById('pr_deductions').textContent = fmtMoney(ded);
+    document.getElementById('pr_net').textContent = fmtMoney(net);
+    document.getElementById('pr_employer').textContent = fmtMoney(er);
+    document.getElementById('pr_cost').textContent = fmtMoney(roundMoney(gross + er));
+    return { st, days, regH, otH, daysWorked, regPay, otPay, gross, other, ded, net, er };
+  }
+  ['pr_rate', 'pr_hpd', 'pr_dpw', 'pr_otMult'].concat(PR_EE, PR_ER).forEach(id => {
+    document.getElementById(id).addEventListener('input', computePayroll);
+  });
+  document.getElementById('pr_rateType').addEventListener('change', onRateTypeChange);
+  ['pr_start', 'pr_end'].forEach(id => document.getElementById(id).addEventListener('change', buildPayrollDays));
+
+  function resetPayrollForm() {
+    prMode = 'new';
+    prCode = null;
+    document.getElementById('pr_rateType').querySelectorAll('option.legacy').forEach(o => o.remove());
+    ['pr_name', 'pr_position', 'pr_start', 'pr_end', 'pr_notes'].forEach(id => { document.getElementById(id).value = ''; });
+    ['pr_rate'].concat(PR_EE, PR_ER).forEach(id => { document.getElementById(id).value = 0; });
+    document.getElementById('pr_rateType').value = 'Weekly';
+    document.getElementById('pr_hpd').value = 8;
+    document.getElementById('pr_dpw').value = 6;
+    document.getElementById('pr_otMult').value = 1.25;
+    prHours = {};
+    prOtherLines = [];
+    renderOtherDeductions();
+    document.getElementById('payrollStatus').textContent = '';
+    document.getElementById('pr_saveBtn').disabled = false;
+    onRateTypeChange();
+    buildPayrollDays();
+  }
+  function openPayrollForm() {
+    resetPayrollForm();
+    setPayrollMode('new');
+    document.getElementById('payrollOverlay').style.display = 'flex';
+    document.getElementById('pr_name').focus();
+  }
+  function closePayrollForm() {
+    document.getElementById('payrollOverlay').style.display = 'none';
+  }
+
+  // ---------- view / edit a saved payroll entry (click its row in Payroll History) ----------
+  let prMode = 'new';   // 'new' | 'view' | 'edit'
+  let prCode = null;    // Payroll Code being viewed / edited
+
+  /** Stored date (text or a Sheets date) -> 'yyyy-mm-dd' for a date box. */
+  function toYmd(v) {
+    if (v === '' || v === null || v === undefined) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(String(v))) return String(v);
+    const d = new Date(v);
+    return isNaN(d) ? '' : ymd(d);
+  }
+
+  /** Switches the pop-up between a new entry, read-only view and editing. */
+  function setPayrollMode(mode) {
+    prMode = mode;
+    const ro = mode === 'view';
+    document.querySelectorAll('#payrollOverlay input, #payrollOverlay select').forEach(el => { el.disabled = ro; });
+    document.getElementById('pr_addOtherRow').style.display = ro ? 'none' : '';
+    renderOtherDeductions();
+    const r = prCode ? payrollRows.find(x => String(x['Payroll Code']) === String(prCode)) : null;
+    const edited = r && r['Last Edited'] ? ' · last edited ' + new Date(r['Last Edited']).toLocaleString() : '';
+    document.getElementById('pr_title').textContent =
+      mode === 'new' ? 'New Payroll Entry' : (mode === 'edit' ? 'Edit Payroll Entry ' : 'Payroll Entry ') + prCode;
+    document.getElementById('pr_sub').textContent = mode === 'new'
+      ? 'Fill in the employee and pay period, then the hours worked each day. Hours above the regular hours per day count as overtime.'
+      : mode === 'view'
+        ? 'Recorded ' + (r && r['Date Recorded'] ? new Date(r['Date Recorded']).toLocaleString() : '') + edited + '. Press Edit to change it.'
+        : 'Change anything below, then press Update. Every figure is recomputed.';
+    document.getElementById('pr_saveBtn').style.display = ro ? 'none' : '';
+    document.getElementById('pr_saveBtn').textContent = mode === 'edit' ? 'Update Payroll Entry' : 'Save Payroll Entry';
+    document.getElementById('pr_editBtn').style.display = ro ? '' : 'none';
+    document.getElementById('pr_printBtn').style.display = ro ? '' : 'none';
+    document.getElementById('pr_closeBtn').textContent = ro ? 'Close' : 'Cancel';
+    document.getElementById('payrollStatus').textContent = '';
+    if (mode === 'edit') { buildPayrollDays(); document.getElementById('pr_name').focus(); }
+  }
+
+  /** Opens a saved payroll entry in the pop-up, read-only, filled in exactly as it was saved. */
+  function openPayrollView(code) {
+    const r = payrollRows.find(x => String(x['Payroll Code']) === String(code));
+    if (!r) { showError('open payroll entry', new Error('Payroll entry ' + code + ' not found — press Refresh')); return; }
+    resetPayrollForm();
+    prCode = String(code);
+
+    document.getElementById('pr_name').value = r['Employee Name'] || '';
+    document.getElementById('pr_position').value = r['Position'] || '';
+    document.getElementById('pr_start').value = toYmd(r['Pay Period Start']);
+    document.getElementById('pr_end').value = toYmd(r['Pay Period End']);
+    const typeSel = document.getElementById('pr_rateType');
+    const type = String(r['Rate Type'] || 'Weekly');
+    if (!Array.from(typeSel.options).some(o => o.value === type)) {
+      const o = document.createElement('option'); o.value = type; o.textContent = type; o.className = 'legacy'; typeSel.appendChild(o);
+    }
+    typeSel.value = type;
+    document.getElementById('pr_rate').value = pn(r, 'Rate');
+    if (pn(r, 'Regular Hours Per Day')) document.getElementById('pr_hpd').value = pn(r, 'Regular Hours Per Day');
+    if (pn(r, 'Work Days Per Week')) document.getElementById('pr_dpw').value = pn(r, 'Work Days Per Week');
+    if (pn(r, 'OT Multiplier')) document.getElementById('pr_otMult').value = pn(r, 'OT Multiplier');
+    document.getElementById('pr_notes').value = r['Notes'] || '';
+
+    const ee = employeeShare(r), er = employerShare(r);
+    document.getElementById('pr_sss_ee').value = ee.sss;
+    document.getElementById('pr_pagibig_ee').value = ee.pag;
+    document.getElementById('pr_philhealth_ee').value = ee.ph;
+    document.getElementById('pr_sss_er').value = er.sss;
+    document.getElementById('pr_pagibig_er').value = er.pag;
+    document.getElementById('pr_philhealth_er').value = er.ph;
+
+    const lines = parseJsonSafe(r['Other Deductions Detail'], []);
+    prOtherLines = lines.length
+      ? lines.map(l => ({ desc: String(l.desc || ''), amount: Number(l.amount) || 0 }))
+      : (ee.other > 0 ? [{ desc: String(r['Other Deductions Note'] || 'Other deductions'), amount: ee.other }] : []);
+
+    prHours = {};
+    const days = parseJsonSafe(r['Daily Hours'], []);
+    days.forEach(d => { if (d && d.date && Number(d.hours) > 0) prHours[d.date] = Number(d.hours); });
+
+    onRateTypeChange();
+    buildPayrollDays();
+    setPayrollMode('view');
+
+    // entries saved before daily hours existed: show the totals exactly as recorded
+    if (!days.length) {
+      const empty = document.getElementById('pr_daysEmpty');
+      empty.style.display = 'block';
+      empty.textContent = 'This entry was recorded before daily hours were tracked: ' + String(r['Days/Hours Worked'] || 0) +
+        ' × ₱' + fmtMoney(pn(r, 'Rate')) + ' = ₱' + fmtMoney(pn(r, 'Gross Pay')) + ' gross. Press Edit to re-enter it with daily hours.';
+      document.getElementById('pr_daysBody').innerHTML = '';
+      document.getElementById('pr_daysFoot').innerHTML = '';
+      const set = (id, v) => { document.getElementById(id).textContent = fmtMoney(v); };
+      set('pr_regPay', pn(r, 'Gross Pay')); set('pr_otPay', 0); set('pr_gross', pn(r, 'Gross Pay'));
+      set('pr_deductions', ee.total); set('pr_net', pn(r, 'Net Pay')); set('pr_employer', er.total);
+      set('pr_cost', roundMoney(pn(r, 'Gross Pay') + er.total));
+      set('pr_eeTotal', ee.total); set('pr_erTotal', er.total);
+      document.getElementById('pr_regSub').textContent = 'as recorded';
+      document.getElementById('pr_otSub').textContent = '—';
+    }
+    document.getElementById('payrollOverlay').style.display = 'flex';
+  }
+
+  function savePayrollEntry() {
+    const statusEl = document.getElementById('payrollStatus');
+    const fail = msg => { statusEl.textContent = msg; statusEl.className = 'status err'; };
+    const name = document.getElementById('pr_name').value.trim();
+    if (!name) return fail('Enter an employee name');
+    const p = computePayroll();
+    if (!p.days.length) return fail('Pick a valid pay period (From and To)');
+    if (!(p.st.rate > 0)) return fail('Enter the rate');
+    if (!(p.regH + p.otH > 0)) return fail('Enter the hours worked for at least one day');
+    if (prOtherLines.some(l => (Number(l.amount) || 0) > 0 && !String(l.desc || '').trim())) return fail('Describe each additional deduction');
+    if (p.net < 0) return fail('Employee deductions are more than the gross pay');
+
+    const lines = prOtherLines.filter(l => (Number(l.amount) || 0) > 0)
+      .map(l => ({ desc: String(l.desc).trim(), amount: roundMoney(Number(l.amount)) }));
+    const payload = {
+      employeeName: name,
+      position: document.getElementById('pr_position').value,
+      periodStart: document.getElementById('pr_start').value,
+      periodEnd: document.getElementById('pr_end').value,
+      rateType: p.st.type,
+      rate: p.st.rate,
+      regHoursPerDay: p.st.hpd,
+      daysPerWeek: p.st.dpw,
+      otMultiplier: p.st.mult,
+      days: p.days,
+      sssEmployee: num('pr_sss_ee'), pagibigEmployee: num('pr_pagibig_ee'), philhealthEmployee: num('pr_philhealth_ee'),
+      otherLines: lines,
+      sssEmployer: num('pr_sss_er'), pagibigEmployer: num('pr_pagibig_er'), philhealthEmployer: num('pr_philhealth_er'),
+      notes: document.getElementById('pr_notes').value
+    };
+    const btn = document.getElementById('pr_saveBtn');
+    const editCode = prMode === 'edit' ? prCode : null;
+    statusEl.textContent = editCode ? 'Updating...' : 'Saving...';
+    statusEl.className = 'status';
+    btn.disabled = true;
+    const runner = google.script.run
+      .withSuccessHandler(res => {
+        btn.disabled = false;
+        if (!res.success) return fail(res.error);
+        statusEl.textContent = '';
+        closePayrollForm();
+        loadPayroll();
+        showSavedModal(editCode ? 'Payroll Entry Updated' : 'Payroll Entry Saved', res.code);
+      })
+      .withFailureHandler(err => {
+        btn.disabled = false;
+        fail('Error: ' + err.message);
+        showError(editCode ? 'update payroll' : 'save payroll', err);
+      });
+    if (editCode) runner.updatePayroll(editCode, payload);
+    else runner.savePayroll(payload);
+  }
+
+  // ---------- payslip printing ----------
+  function parseJsonSafe(s, dflt) {
+    if (!s) return dflt;
+    try { const v = JSON.parse(s); return v || dflt; } catch (e) { return dflt; }
+  }
+
+  /** Builds a one-page payslip for a payroll entry and opens the print dialog. */
+  function printPayslip(code) {
+    const r = payrollRows.find(x => String(x['Payroll Code']) === String(code));
+    if (!r) { showError('print payslip', new Error('Payroll entry ' + code + ' not found — press Refresh')); return; }
+    const ee = employeeShare(r);
+    const m = n => fmtMoney(roundMoney(Number(n) || 0));
+    const period = [fmtPayDate(r['Pay Period Start']), fmtPayDate(r['Pay Period End'])].filter(Boolean).join(' – ');
+    const days = parseJsonSafe(r['Daily Hours'], []);
+    const others = parseJsonSafe(r['Other Deductions Detail'], []);
+    const hasDetail = days.length > 0;
+    const hpd = pn(r, 'Regular Hours Per Day') || 8;
+    const hourly = pn(r, 'Hourly Rate');
+    const mult = pn(r, 'OT Multiplier') || 1.25;
+
+    let dayRows = '';
+    if (hasDetail) {
+      dayRows = days.map(d => {
+        const dt = parseYmd(d.date);
+        const h = Number(d.hours) || 0, reg = Math.min(h, hpd), ot = Math.max(0, h - hpd);
+        return '<tr><td>' + (dt ? dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : esc(d.date)) + '</td><td>' +
+          (dt ? DAY_NAMES[dt.getDay()] : '') + '</td><td class="r">' + (h || '') + '</td><td class="r">' + (reg || '') +
+          '</td><td class="r">' + (ot || '') + '</td></tr>';
+      }).join('');
+    }
+
+    const earnRows = hasDetail
+      ? '<tr><td>Regular pay (' + pn(r, 'Regular Hours') + ' hrs × ₱' + m(hourly) + ')</td><td class="r">' + m(r['Regular Pay']) + '</td></tr>' +
+        '<tr><td>Overtime pay (' + pn(r, 'Overtime Hours') + ' hrs × ₱' + m(hourly * mult) + ')</td><td class="r">' + m(r['Overtime Pay']) + '</td></tr>'
+      : '<tr><td>Basic pay (' + esc(r['Days/Hours Worked']) + ' × ₱' + m(r['Rate']) + ')</td><td class="r">' + m(r['Gross Pay']) + '</td></tr>';
+
+    const otherRows = others.length
+      ? others.map(o => '<tr><td>' + esc(o.desc || 'Other deduction') + '</td><td class="r">' + m(o.amount) + '</td></tr>').join('')
+      : (ee.other > 0 ? '<tr><td>Other deductions' + (r['Other Deductions Note'] ? ' (' + esc(r['Other Deductions Note']) + ')' : '') + '</td><td class="r">' + m(ee.other) + '</td></tr>' : '');
+
+    document.getElementById('printArea').innerHTML = `
+      <div class="slip">
+        <div class="slip-head">
+          <div><h1>VLLP MARKETING</h1><div>Payroll</div></div>
+          <div style="text-align:right;"><div class="slip-title">PAYSLIP</div><div>${esc(code)}</div></div>
+        </div>
+        <table class="info">
+          <tr><td class="k">Employee</td><td><strong>${esc(r['Employee Name'])}</strong></td><td class="k">Pay period</td><td>${esc(period)}</td></tr>
+          <tr><td class="k">Position</td><td>${esc(r['Position'])}</td><td class="k">Rate</td><td>₱${m(r['Rate'])} ${esc(String(r['Rate Type'] || '').toLowerCase())}${hourly ? ' (₱' + m(hourly) + '/hr)' : ''}</td></tr>
+        </table>
+        ${hasDetail ? `<table><thead><tr><th>Date</th><th>Day</th><th class="r">Hours</th><th class="r">Regular</th><th class="r">Overtime</th></tr></thead>
+          <tbody>${dayRows}</tbody>
+          <tfoot><tr class="tot"><td colspan="2">Total</td><td class="r">${pn(r, 'Regular Hours') + pn(r, 'Overtime Hours')}</td><td class="r">${pn(r, 'Regular Hours')}</td><td class="r">${pn(r, 'Overtime Hours')}</td></tr></tfoot></table>` : ''}
+        <div class="cols">
+          <div><table><thead><tr><th>Earnings</th><th class="r">Amount (₱)</th></tr></thead>
+            <tbody>${earnRows}<tr class="tot"><td>Gross pay</td><td class="r">${m(r['Gross Pay'])}</td></tr></tbody></table></div>
+          <div><table><thead><tr><th>Deductions</th><th class="r">Amount (₱)</th></tr></thead>
+            <tbody><tr><td>SSS</td><td class="r">${m(ee.sss)}</td></tr><tr><td>PAG-IBIG</td><td class="r">${m(ee.pag)}</td></tr>
+            <tr><td>PhilHealth</td><td class="r">${m(ee.ph)}</td></tr>${otherRows}
+            <tr class="tot"><td>Total deductions</td><td class="r">${m(ee.total)}</td></tr></tbody></table></div>
+        </div>
+        <div class="net"><span>NET PAY</span><span>₱${m(r['Net Pay'])}</span></div>
+        ${r['Notes'] ? '<div style="margin:-16px 0 20px;">Notes: ' + esc(r['Notes']) + '</div>' : ''}
+        <div class="sign"><div>Prepared by</div><div>Received by: ${esc(r['Employee Name'])}</div></div>
+      </div>`;
+    window.print();
+  }
+
+  // ---- payroll data, for the Payroll Dashboard ----
+  let payrollRows = [];
+  let payrollHours = 208; // working hours per month (saved on the server)
+  let manufacturingSalary = []; // [{month, total, count}] — Calculator Salary Result, summed per month from Transactions
+
+  /** Manufacturing salary total for one month key, or zeros if that month has no saved transactions. */
+  function manufacturingSalaryOf(key) {
+    return manufacturingSalary.find(m => m.month === key) || { month: key, total: 0, count: 0 };
+  }
+
+  const pn = (r, k) => Number(r[k]) || 0;
+
+  /** yyyy-mm for a payroll date. Plain yyyy-mm-dd text is read as-is; anything else (the Sheet may turn it into a date) as local time. */
+  function payMonthKey(v) {
+    if (v === '' || v === null || v === undefined) return '';
+    const m = /^(\d{4})-(\d{2})-\d{2}$/.exec(String(v));
+    if (m) return m[1] + '-' + m[2];
+    const d = new Date(v);
+    return isNaN(d) ? '' : d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  }
+  function fmtPayDate(v) {
+    if (v === '' || v === null || v === undefined) return '';
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v));
+    const d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(v);
+    return isNaN(d) ? String(v) : d.toLocaleDateString();
+  }
+  function monthLabel(key) {
+    const [y, m] = key.split('-').map(Number);
+    return new Date(y, m - 1, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+  /** A payroll entry belongs to the month its pay period ENDS in (falling back to its start, then the date recorded). */
+  function payrollMonthOf(r) {
+    return payMonthKey(r['Pay Period End']) || payMonthKey(r['Pay Period Start']) || payMonthKey(r['Date Recorded']);
+  }
+
+  /** Employee-side amounts. Older entries only have the Deductions total, so whatever
+   *  is not SSS / PAG-IBIG / PhilHealth counts as "other". */
+  function employeeShare(r) {
+    const sss = pn(r, 'SSS (Employee)'), pag = pn(r, 'PAG-IBIG (Employee)'), ph = pn(r, 'PhilHealth (Employee)');
+    const total = pn(r, 'Deductions');
+    return { sss, pag, ph, total, other: roundMoney(total - sss - pag - ph) };
+  }
+  function employerShare(r) {
+    const sss = pn(r, 'SSS (Employer)'), pag = pn(r, 'PAG-IBIG (Employer)'), ph = pn(r, 'PhilHealth (Employer)');
+    return { sss, pag, ph, total: pn(r, 'Employer Share Total') || roundMoney(sss + pag + ph) };
+  }
+
+  function summarizePayroll(rows) {
+    const s = { n: rows.length, gross: 0, ded: 0, net: 0, er: 0,
+                sssEe: 0, pagEe: 0, phEe: 0, otherEe: 0, sssEr: 0, pagEr: 0, phEr: 0 };
+    const people = new Set();
+    rows.forEach(r => {
+      const ee = employeeShare(r), er = employerShare(r);
+      people.add(String(r['Employee Name'] || '').trim().toLowerCase());
+      s.gross += pn(r, 'Gross Pay'); s.ded += ee.total; s.net += pn(r, 'Net Pay'); s.er += er.total;
+      s.sssEe += ee.sss; s.pagEe += ee.pag; s.phEe += ee.ph; s.otherEe += ee.other;
+      s.sssEr += er.sss; s.pagEr += er.pag; s.phEr += er.ph;
+    });
+    s.employees = people.size;
+    s.cost = s.gross + s.er;
+    s.avgGross = s.employees ? s.gross / s.employees : 0;
+    s.perHour = payrollHours > 0 ? s.avgGross / payrollHours : 0;   // what the Calculator's "Salary per Person" needs
+    return s;
+  }
+
+  /** Every month that has either a payroll entry or a saved Transaction (so a month with
+   *  production but no formal payroll yet still shows its manufacturing salary total). */
+  function payrollMonths() {
+    const keys = new Set();
+    payrollRows.forEach(r => { const k = payrollMonthOf(r); if (k) keys.add(k); });
+    manufacturingSalary.forEach(m => { if (m.month) keys.add(m.month); });
+    return Array.from(keys).sort().reverse();
+  }
+  const money = n => '₱' + fmtMoney(roundMoney(n));
+
+  function renderPayrollDashboard() {
+    const sel = document.getElementById('pd_month');
+    const months = payrollMonths();
+    const prev = sel.value;
+    sel.innerHTML = months.length ? '' : '<option value="">No payroll yet</option>';
+    months.forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = monthLabel(k); sel.appendChild(o); });
+    sel.value = months.includes(prev) ? prev : (months[0] || '');
+
+    const key = sel.value;
+    const rows = key ? payrollRows.filter(r => payrollMonthOf(r) === key) : [];
+    const s = summarizePayroll(rows);
+    document.getElementById('pd_note').textContent = key
+      ? 'Payroll entries whose pay period ends in ' + monthLabel(key) + ' (' + s.n + (s.n === 1 ? ' entry' : ' entries') + ')'
+      : 'No payroll entries yet — add one below.';
+
+    document.getElementById('pd_emp').textContent = s.employees.toLocaleString();
+    document.getElementById('pd_empSub').textContent = s.n + (s.n === 1 ? ' payroll entry' : ' payroll entries');
+    document.getElementById('pd_gross').textContent = money(s.gross);
+    document.getElementById('pd_ded').textContent = money(s.ded);
+    document.getElementById('pd_net').textContent = money(s.net);
+    document.getElementById('pd_er').textContent = money(s.er);
+    document.getElementById('pd_cost').textContent = money(s.cost);
+
+    const mfg = manufacturingSalaryOf(key);
+    document.getElementById('pd_mfgSalary').textContent = money(mfg.total);
+    document.getElementById('pd_mfgSalarySub').textContent = mfg.count + (mfg.count === 1 ? ' production run' : ' production runs');
+
+    // government contributions for the chosen month
+    const c = document.getElementById('pd_contrib');
+    const line = (label, ee, er) => '<tr><td>' + label + '</td><td class="r">' + fmtMoney(roundMoney(ee)) +
+      '</td><td class="r">' + fmtMoney(roundMoney(er)) + '</td><td class="r">' + fmtMoney(roundMoney(ee + er)) + '</td></tr>';
+    c.innerHTML =
+      line('SSS', s.sssEe, s.sssEr) + line('PAG-IBIG', s.pagEe, s.pagEr) + line('PhilHealth', s.phEe, s.phEr) +
+      '<tr class="total-row"><td>Total contributions</td><td class="r">' + fmtMoney(roundMoney(s.sssEe + s.pagEe + s.phEe)) +
+      '</td><td class="r">' + fmtMoney(roundMoney(s.sssEr + s.pagEr + s.phEr)) +
+      '</td><td class="r">' + fmtMoney(roundMoney(s.sssEe + s.pagEe + s.phEe + s.sssEr + s.pagEr + s.phEr)) + '</td></tr>' +
+      '<tr><td>Other deductions <span class="hint">(employee only, not remitted)</span></td><td class="r">' +
+      fmtMoney(roundMoney(s.otherEe)) + '</td><td class="r">—</td><td class="r">—</td></tr>';
+
+    // every month side by side
+    const body = document.getElementById('pd_months');
+    body.innerHTML = '';
+    document.getElementById('pd_empty').style.display = months.length ? 'none' : 'block';
+    months.forEach(k => {
+      const m = summarizePayroll(payrollRows.filter(r => payrollMonthOf(r) === k));
+      const mfg = manufacturingSalaryOf(k);
+      const tr = document.createElement('tr');
+      tr.className = 'clickable';
+      tr.title = 'Open ' + monthLabel(k);
+      tr.innerHTML = '<td>' + monthLabel(k) + '</td><td class="r">' + m.employees + '</td><td class="r">' + fmtMoney(roundMoney(m.gross)) +
+        '</td><td class="r">' + fmtMoney(roundMoney(m.ded)) + '</td><td class="r">' + fmtMoney(roundMoney(m.net)) +
+        '</td><td class="r">' + fmtMoney(roundMoney(m.er)) + '</td><td class="r">' + fmtMoney(roundMoney(m.cost)) +
+        '</td><td class="r"><strong>' + fmtMoney(roundMoney(mfg.total)) + '</strong></td>';
+      tr.addEventListener('click', () => { sel.value = k; renderPayrollDashboard(); });
+      body.appendChild(tr);
+    });
+  }
+
+  function savePayrollHours() {
+    const el = document.getElementById('pd_hours'), st = document.getElementById('pd_hoursStatus');
+    const h = parseFloat(el.value);
+    if (!(h > 0 && h <= 744)) { st.textContent = 'Enter 1 to 744 hours'; st.className = 'status err'; return; }
+    st.textContent = 'Saving...'; st.className = 'status';
+    google.script.run
+      .withSuccessHandler(res => {
+        if (!res.success) { st.textContent = res.error; st.className = 'status err'; return; }
+        payrollHours = res.hoursPerMonth;
+        st.textContent = 'Saved ✓'; st.className = 'status ok';
+        refreshPayrollViews();
+      })
+      .withFailureHandler(err => { st.textContent = 'Error saving'; st.className = 'status err'; showError('payroll hours', err); })
+      .savePayrollSettings(h);
+  }
+
+  function renderPayrollHistory() {
+    const body = document.getElementById('payrollBody');
+    const empty = document.getElementById('payrollEmpty');
+    body.innerHTML = '';
+    if (!payrollRows.length) { empty.style.display = 'block'; empty.textContent = 'No payroll entries yet.'; return; }
+    empty.style.display = 'none';
+    payrollRows.forEach(r => {
+      const ee = employeeShare(r), er = employerShare(r);
+      const parts = (a, b, c) => [a && 'SSS ' + fmt(a), b && 'PAG-IBIG ' + fmt(b), c && 'PhilHealth ' + fmt(c)].filter(Boolean).join(' · ');
+      const otherNote = String(r['Other Deductions Note'] || '').trim();
+      const otherText = ee.other > 0 ? 'Other ' + fmt(ee.other) + (otherNote ? ' (' + otherNote + ')' : '') : '';
+      const eeHint = [parts(ee.sss, ee.pag, ee.ph), otherText].filter(Boolean).join(' · ');
+      const erHint = parts(er.sss, er.pag, er.ph);
+      const period = [fmtPayDate(r['Pay Period Start']), fmtPayDate(r['Pay Period End'])].filter(Boolean).join(' – ');
+      const code = String(r['Payroll Code']);
+      const otH = pn(r, 'Overtime Hours');
+      const worked = esc(r['Days/Hours Worked']) + (r['Daily Hours'] ? ' hrs' : '') +
+        (otH ? '<div class="hint">incl. ' + otH + ' hrs OT</div>' : '');
+      const tr = document.createElement('tr');
+      tr.className = 'clickable';
+      tr.title = 'Click to view ' + code;
+      tr.innerHTML = `
+        <td>${esc(code)}</td><td>${esc(r['Employee Name'])}</td><td>${esc(r['Position'])}</td>
+        <td>${esc(period)}</td><td>${esc(r['Rate Type'])}</td><td>${fmt(r['Rate'])}</td>
+        <td>${worked}</td><td>${fmt(r['Gross Pay'])}</td>
+        <td>${fmt(ee.total)}${eeHint ? '<div class="hint">' + esc(eeHint) + '</div>' : ''}</td>
+        <td>${fmt(r['Net Pay'])}</td>
+        <td>${fmt(er.total)}${erHint ? '<div class="hint">' + esc(erHint) + '</div>' : ''}</td>
+        <td><div class="row-actions">
+          <button class="secondary sm" onclick="event.stopPropagation(); printPayslip('${esc(code)}')">🖨 Print</button>
+          <button class="danger" onclick="event.stopPropagation(); removePayroll('${esc(code)}')">Delete</button>
+        </div></td>
+      `;
+      tr.addEventListener('click', () => openPayrollView(code));
+      body.appendChild(tr);
+    });
+  }
+
+  function refreshPayrollViews() {
+    renderPayrollDashboard();
+  }
+
+  function loadPayroll() {
+    const body = document.getElementById('payrollBody');
+    document.getElementById('payrollEmpty').style.display = 'none';
+    body.innerHTML = '<tr><td colspan="12" style="color:#6b7785;">Loading...</td></tr>';
+    google.script.run
+      .withSuccessHandler(st => {
+        if (st && st.hoursPerMonth > 0) { payrollHours = st.hoursPerMonth; document.getElementById('pd_hours').value = payrollHours; }
+        refreshPayrollViews();
+      })
+      .withFailureHandler(err => showError('payroll settings', err))
+      .getPayrollSettings();
+    google.script.run
+      .withSuccessHandler(rows => { payrollRows = rows || []; renderPayrollHistory(); refreshPayrollViews(); })
+      .withFailureHandler(err => {
+        body.innerHTML = '';
+        const empty = document.getElementById('payrollEmpty');
+        empty.style.display = 'block';
+        empty.textContent = 'Error loading payroll — see banner above.';
+        showError('payroll list', err);
+      })
+      .getPayroll();
+    google.script.run
+      .withSuccessHandler(rows => { manufacturingSalary = rows || []; refreshPayrollViews(); })
+      .withFailureHandler(err => showError('manufacturing salary', err))
+      .getManufacturingSalaryByMonth();
+  }
+
+  function removePayroll(code) {
+    if (!confirm('Delete payroll entry ' + code + '?')) return;
+    google.script.run.withSuccessHandler(() => loadPayroll())
+      .withFailureHandler(err => showError('delete payroll', err)).deletePayroll(code);
+  }
+
+
+  // ---------- phone layout: wide tables shown as one card per record ----------
+  /** On a phone (see the max-width: 640px styles) these tables drop their header row
+   *  and show each record as a card, so every cell needs its column name as a label.
+   *  This labels the cells automatically whenever a table's rows are (re)drawn. */
+  const CARD_TABLES = ['txnBody', 'salesBody', 'invBody', 'payrollBody', 'productsBody', 'pd_months'];
+  function labelCardCells(tbody) {
+    const table = tbody.closest('table');
+    const heads = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+    tbody.querySelectorAll(':scope > tr').forEach(tr => {
+      let i = 0;
+      Array.from(tr.children).forEach(td => {
+        if (!td.hasAttribute('data-label')) td.setAttribute('data-label', td.hasAttribute('colspan') ? '' : (heads[i] || ''));
+        i += Number(td.getAttribute('colspan')) || 1;
+      });
+    });
+  }
+  function setupPhoneCards() {
+    CARD_TABLES.forEach(id => {
+      const tbody = document.getElementById(id);
+      if (!tbody) return;
+      tbody.closest('table').classList.add('cardify');
+      labelCardCells(tbody);
+      new MutationObserver(() => labelCardCells(tbody)).observe(tbody, { childList: true });
+    });
+    // the dashboard chart follows the screen width (e.g. when the phone is turned sideways)
+    let t = null;
+    window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { if (typeof drawChart === 'function') drawChart(); }, 250); });
+  }
+
+  // ---------- tabs ----------
+  /** Opens a tab by name (dash, calc, txn, sales, inv, payroll, products) and loads its data. */
+  function showTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
+    if (name === 'products') loadProducts();
+    if (name === 'txn') loadTransactions();
+    if (name === 'sales') { loadSalesForm(); loadSalesHistory(); }
+    if (name === 'inv') loadInventory();
+    if (name === 'payroll') loadPayroll();
+    if (name === 'dash') loadDashboard();
+  }
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => showTab(tab.dataset.tab));
+  });
+
+  // initial loads
+  setupPhoneCards();
+  setSummaryRange('month');
+  syncPayment('s', 'load');
+  loadMaterialsList();
+  loadProductDropdown();
+  loadDashboard();
+  loadPayroll();
+
+  // If Index.html was pasted into the Apps Script project twice, the page shows a second header
+  // (and a second copy of everything). Say so plainly instead of leaving it looking broken.
+  window.addEventListener('load', () => {
+    if (false) {
+      showError('setup', new Error('Index.html appears twice in the Apps Script project. Open Index.html, press Ctrl+A, press Delete, paste the file ONCE, save, then deploy a New version.'));
+    }
+  });
+</script>
+
+</body>
+</html>
