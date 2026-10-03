@@ -1,7 +1,7 @@
 {
-  "name": "VLLP Marketing",
-  "short_name": "VLLP",
-  "description": "Pricing calculator, sales, inventory & payroll — connected to the VLLP Google Sheet.",
+  "name": "VLKC Marketing",
+  "short_name": "VLKC",
+  "description": "Pricing calculator, sales, inventory & payroll — connected to the VLKC Google Sheet.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

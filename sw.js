@@ -1,7 +1,7 @@
-/* VLLP Marketing phone app — keeps the app screen available offline and quick
+/* VLKC Marketing phone app — keeps the app screen available offline and quick
    to open. Data is never cached: every figure comes live from the Google Sheet.
    Bump VERSION whenever index.html changes so phones pick up the new copy. */
-const VERSION = 'vllp-2026-09-29-h';
+const VERSION = 'vllp-2026-10-04-f';
 const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {

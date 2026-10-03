@@ -2,7 +2,6 @@
 <html>
 <head>
   <base target="_top">
-  <title>VLLP Marketing</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="manifest" href="manifest.json">
@@ -10,7 +9,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="VLLP Marketing">
+  <meta name="apple-mobile-web-app-title" content="VLKC Marketing">
   <link rel="icon" type="image/png" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <style>
@@ -256,6 +255,44 @@
     .slip .sign { display: flex; gap: 40px; margin-top: 10px; }
     .slip .sign div { flex: 1; border-top: 1px solid #000; padding-top: 4px; text-align: center; font-size: 11px; }
 
+    /* ---- quotation print setup ---- */
+    #quoteOverlay {
+      display: none; position: fixed; inset: 0; background: rgba(15,25,35,.5);
+      align-items: flex-start; justify-content: center; z-index: 997; padding: 20px; overflow-y: auto;
+    }
+    #quoteOverlay .edit-box {
+      background: #fff; border-radius: 14px; padding: 22px 24px; max-width: 980px;
+      width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,.2); margin: auto 0;
+    }
+    .quote-layout { display: grid; grid-template-columns: 300px 1fr; gap: 18px; align-items: start; }
+    .quote-form .field { margin-bottom: 10px; }
+    .quote-form textarea { width: 100%; padding: 7px 8px; border: 1px solid var(--border); border-radius: 6px;
+                           font: inherit; font-size: 13px; resize: vertical; min-height: 54px; }
+    .quote-preview-wrap { border: 1px solid var(--border); border-radius: 10px; background: #e9edf1; padding: 14px;
+                          overflow: auto; max-height: 72vh; }
+    .quote-preview-wrap .slip { background: #fff; padding: 22px 24px; box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+    .quote-email { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-top: 14px; background: #f9fafb; }
+    .quote-email textarea { width: 100%; padding: 8px 9px; border: 1px solid var(--border); border-radius: 6px;
+                            font: inherit; font-size: 13px; resize: vertical; }
+    .quote-warn { background: #fff4e0; border: 1px solid var(--accent); border-radius: 8px; padding: 8px 10px;
+                  font-size: 12px; color: #7a4a00; margin-bottom: 10px; }
+    @media (max-width: 860px) { .quote-layout { grid-template-columns: 1fr; } .quote-preview-wrap { max-height: none; } }
+
+    /* ---- quotation document (screen preview + print) ---- */
+    .quote .q-intro { margin: 4px 0 10px; }
+    .quote .q-items td { vertical-align: top; }
+    .quote .q-items .desc-sub { color: #444; font-size: 11px; margin-top: 2px; }
+    .quote .q-sum { width: 300px; margin-left: auto; }
+    .quote .q-sum td { border: none; padding: 3px 6px; }
+    .quote .q-sum tr.grand td { border-top: 2px solid #000; font-size: 15px; font-weight: 700; padding-top: 6px; }
+    .quote .q-terms { margin: 14px 0 34px; }
+    .quote .q-terms td { border: none; padding: 2px 6px 2px 0; vertical-align: top; }
+    .quote .q-terms td.k { width: 120px; color: #444; }
+    .quote .sign > div { border-top: none; padding-top: 0; font-size: 11px; text-align: center; }
+    .quote .sign .nm { border-top: none; border-bottom: 1px solid #000; padding: 0 0 3px; margin-bottom: 4px;
+                       min-height: 34px; display: flex; align-items: flex-end; justify-content: center;
+                       font-weight: 700; font-size: 12px; }
+
     /* =====================================================================
        PHONE LAYOUT (screens up to 640px wide). Same app, same Google Sheet —
        only the layout changes: compact header, sticky tabs, two fields per
@@ -329,17 +366,19 @@
       #txnBody td:nth-child(2)::after { content: '  ✏️ tap to view / edit'; font-weight: 400; font-size: 11px; color: var(--blue); }
 
       /* ---- pop-ups fill the phone screen ---- */
-      #editSaleOverlay, #invDetailOverlay, #payrollOverlay { padding: 0; align-items: stretch; }
-      #editSaleOverlay .edit-box, #invDetailOverlay .edit-box, #payrollOverlay .edit-box {
+      #editSaleOverlay, #invDetailOverlay, #payrollOverlay, #quoteOverlay { padding: 0; align-items: stretch; }
+      #editSaleOverlay .edit-box, #invDetailOverlay .edit-box, #payrollOverlay .edit-box, #quoteOverlay .edit-box {
         border-radius: 0; max-width: none; min-height: 100%; max-height: none; padding: 14px 14px 24px; margin: 0; }
       #editSaleOverlay .edit-box, #invDetailOverlay .edit-box { overflow-y: auto; height: 100%; }
       .edit-box h2 { font-size: 16px; }
       #modalOverlay .modal-box { padding: 22px 20px; }
 
       /* payroll pop-up: keep the per-day hours as a tight table */
+      .quote-preview-wrap { padding: 8px; }
+      .quote-preview-wrap .slip { padding: 14px 12px; min-width: 520px; }
       .pr-table th, .pr-table td { padding: 5px 3px; font-size: 12px; }
       .pr-table th { font-size: 9.5px; }
-      .pr-table input { width: 54px; padding: 6px 5px; }
+      .pr-table input { width: 50px; padding: 6px 4px; }
       .pr-table input.desc { min-width: 0; width: 100%; }
       .pr-table .hint { font-size: 10px; }
       #pr_daysBody td:first-child { white-space: nowrap; }
@@ -350,7 +389,7 @@
 <div id="busyBar"></div>
 <div id="phoneSetup">
   <div class="box">
-    <h2>VLLP Marketing</h2>
+    <h2>VLKC Marketing</h2>
     <p id="ps_intro">Connect this phone to your Google Sheet. You only need to do this once.</p>
     <div class="field" id="ps_urlWrap">
       <label>Connection link</label>
@@ -368,7 +407,7 @@
 
 
 <header>
-  <h1>VLLP MARKETING</h1>
+  <h1>VLKC MARKETING</h1>
   <p>Pricing calculator, sales, inventory &amp; payroll</p>
   <div class="version" id="appVersion" style="display:none;"></div>
 </header>
@@ -476,14 +515,15 @@
     <div class="grid" style="margin-top:10px;">
       <div class="field"><label>Regular Hours per Day</label><input type="number" step="0.5" min="1" id="pr_hpd" value="8"></div>
       <div class="field" id="pr_dpwWrap"><label>Work Days per Week</label><input type="number" step="1" min="1" max="7" id="pr_dpw" value="6"></div>
-      <div class="field"><label>Overtime Pay (× hourly rate)</label><input type="number" step="0.05" min="1" id="pr_otMult" value="1.25"></div>
+      <div class="field"><label>Overtime Pay (× hourly rate)</label><input type="number" step="0.05" min="1" id="pr_otMult" value="1"></div>
+      <div class="field"><label>Night Differential % (added to night overtime)</label><input type="number" step="1" min="0" id="pr_ndPct" value="10"></div>
     </div>
     <div class="hint" id="pr_hourlyHint" style="margin-top:6px;"></div>
 
     <div class="subhead">Hours Worked</div>
     <div class="scroll-x">
       <table class="compact pr-table">
-        <thead><tr><th>Date</th><th>Day</th><th>Hours Worked</th><th class="r">Regular Hrs</th><th class="r">Overtime Hrs</th><th class="r">Pay (₱)</th></tr></thead>
+        <thead><tr><th>Date</th><th>Day</th><th>Hours Worked</th><th>Night OT Hrs<div class="hint" style="text-transform:none;">10pm–6am</div></th><th class="r">Regular Hrs</th><th class="r">Overtime Hrs</th><th class="r">Pay (₱)</th></tr></thead>
         <tbody id="pr_daysBody"></tbody>
         <tfoot id="pr_daysFoot"></tfoot>
       </table>
@@ -515,6 +555,7 @@
     <div class="results" style="margin-top:14px;">
       <div class="result-box"><div class="label">Regular Pay</div><div class="value" id="pr_regPay">0.00</div><div class="sub" id="pr_regSub">0 hrs</div></div>
       <div class="result-box"><div class="label">Overtime Pay</div><div class="value" id="pr_otPay">0.00</div><div class="sub" id="pr_otSub">0 hrs</div></div>
+      <div class="result-box"><div class="label">Night Differential</div><div class="value" id="pr_ndPay">0.00</div><div class="sub" id="pr_ndSub">0 hrs</div></div>
       <div class="result-box"><div class="label">Gross Pay</div><div class="value" id="pr_gross">0.00</div></div>
       <div class="result-box"><div class="label">Employee Deductions</div><div class="value" id="pr_deductions">0.00</div></div>
       <div class="result-box highlight"><div class="label">Net Pay</div><div class="value" id="pr_net">0.00</div></div>
@@ -531,7 +572,52 @@
   </div>
 </div>
 
-<!-- Payslip is built here only when printing; hidden on screen -->
+<!-- Quotation print setup pop-up -->
+<div id="quoteOverlay">
+  <div class="edit-box">
+    <h2 id="q_title">Print Quotation</h2>
+    <div class="edit-sub">Only the details a customer needs are printed — product, quantity, price, VAT and terms. Costs, materials and markup are never shown.</div>
+    <div class="quote-layout">
+      <div class="quote-form">
+        <div class="quote-warn" id="q_warn" style="display:none;"></div>
+        <div class="field"><label>Customer / Company</label><input id="q_customer" placeholder="e.g. Gaisano Mall"></div>
+        <div class="field"><label>Address</label><input id="q_address"></div>
+        <div class="field"><label>Attention (contact person)</label><input id="q_attention"></div>
+        <div class="field"><label>Customer Email</label><input id="q_email" type="email" inputmode="email" autocapitalize="off" placeholder="customer@example.com"></div>
+        <div class="field"><label>Quotation Date</label><input type="date" id="q_date"></div>
+        <div class="field"><label>Payment Terms</label><input id="q_terms" placeholder="e.g. 50% down payment, balance upon delivery"></div>
+        <div class="field"><label>Delivery</label><input id="q_delivery" placeholder="e.g. 7–10 days after confirmation"></div>
+        <div class="field"><label>Notes</label><textarea id="q_notes" placeholder="Anything else the customer should know"></textarea></div>
+        <div class="field"><label>Prepared by</label><input id="q_prepared"></div>
+      </div>
+      <div class="quote-preview-wrap"><div id="q_preview"></div></div>
+    </div>
+    <div id="q_emailPanel" class="quote-email" style="display:none;">
+      <div class="subhead" style="margin-top:4px;">Email this quotation</div>
+      <div class="hint" style="margin-bottom:8px;">Sent from your Google account as “VLKC Marketing”, with the quotation attached as a PDF.</div>
+      <div class="grid" style="grid-template-columns:1fr 1fr;">
+        <div class="field"><label>To</label><input id="qe_to" type="email" inputmode="email" autocapitalize="off" placeholder="customer@example.com"></div>
+        <div class="field"><label>CC (optional)</label><input id="qe_cc" type="email" inputmode="email" autocapitalize="off" placeholder="separate several with commas"></div>
+      </div>
+      <div class="field" style="margin-top:8px;"><label>Subject</label><input id="qe_subject"></div>
+      <div class="field" style="margin-top:8px;"><label>Message</label><textarea id="qe_message" rows="8"></textarea></div>
+      <div class="hint" id="qe_attach" style="margin-top:4px;"></div>
+      <div class="actions" style="margin-top:10px;">
+        <button class="primary" id="qe_sendBtn" type="button" onclick="sendQuoteEmail()">Send Email</button>
+        <button class="secondary" type="button" onclick="closeQuoteEmail()">Cancel</button>
+        <span class="status" id="qe_status"></span>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="primary" id="q_printBtn" type="button" onclick="printQuotation()">🖨 Print</button>
+      <button class="primary" id="q_emailBtn" type="button" onclick="openQuoteEmail()">✉️ Email</button>
+      <button class="secondary" type="button" onclick="closeQuoteSetup()">Close</button>
+      <span class="status" id="q_status"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Payslip / quotation is built here only when printing; hidden on screen -->
 <div id="printArea"></div>
 
 <div class="tabs">
@@ -557,13 +643,14 @@
       <select id="monthSelect" onchange="renderMonthDetail()"></select>
     </div>
     <div class="results" style="margin-bottom:16px;">
-      <div class="result-box highlight"><div class="label">Total Expenses</div><div class="value" id="d_exp">0.00</div></div>
+      <div class="result-box highlight"><div class="label">Total Expenses</div><div class="value" id="d_exp">0.00</div><div class="sub" style="color:#cfd9e2;">Cost of the pcs sold</div></div>
       <div class="result-box highlight"><div class="label">Total Revenue</div><div class="value" id="d_rev">0.00</div></div>
-      <div class="result-box profit"><div class="label">Total Profit</div><div class="value" id="d_profit">0.00</div></div>
+      <div class="result-box profit"><div class="label">Total Profit</div><div class="value" id="d_profit">0.00</div><div class="sub">Revenue − expenses</div></div>
     </div>
+    <div class="hint" id="d_note" style="margin:-6px 0 14px;">Expenses are recognized only when a sale is recorded: the quotation's cost for the pcs sold. Saving a quotation in the Calculator adds no expense.</div>
     <div class="scroll-x">
       <table>
-        <thead><tr><th>Product</th><th>Qty Produced</th><th>Qty Sold</th><th>Revenue</th><th>Profit</th></tr></thead>
+        <thead><tr><th>Product</th><th>Qty Produced</th><th>Qty Sold</th><th>Revenue</th><th>Expenses</th><th>Profit</th></tr></thead>
         <tbody id="d_products"></tbody>
       </table>
       <div class="empty" id="d_empty" style="display:none;">No data for this month yet.</div>
@@ -674,6 +761,7 @@
     </div>
     <div class="actions">
       <button class="primary" id="saveTxnBtn" onclick="saveCurrent()">Save Transaction</button>
+      <button class="secondary" type="button" onclick="openQuoteFromCalculator()">🖨 Print Quotation</button>
       <button class="secondary" id="cancelTxnBtn" type="button" onclick="cancelTxnEdit()" style="display:none;">Cancel edit</button>
       <span class="status" id="saveStatus"></span>
     </div>
@@ -868,15 +956,15 @@
       </div>
     </div>
 
-    <div class="subhead">Manufacturing Salary (from Transactions)</div>
+    <div class="subhead">Manufacturing Salary (recognized from Sales)</div>
     <div class="results">
       <div class="result-box expense">
         <div class="label">Total Salary Result</div>
         <div class="value" id="pd_mfgSalary">₱0.00</div>
-        <div class="sub" id="pd_mfgSalarySub">0 production runs</div>
+        <div class="sub" id="pd_mfgSalarySub">0 sales</div>
       </div>
     </div>
-    <div class="hint" style="margin-top:6px;">The total of the Calculator's Salary Result across every Transaction saved this month (grouped by each transaction's own date). This cost is already counted in each transaction's Total Expenses — it's shown here so the manufacturing salary expense accumulates by month, alongside (not added into) the office payroll figures above.</div>
+    <div class="hint" style="margin-top:6px;">The manufacturing salary recognized this month: for every sale, the quotation's Salary Result × pcs sold ÷ pcs quoted, counted in the month of the sale. It is part of the expenses on the Dashboard, and is shown here alongside (not added into) the office payroll figures above.</div>
 
     <div class="subhead">Government Contributions</div>
     <div class="scroll-x">
@@ -978,8 +1066,21 @@
   var apiUrl = BUILT_IN_URL || get('vllp_api');
   var pin = get('vllp_pin');
   var ready = !!(apiUrl && pin);
-  var queue = [];
+  var queue = [];       // calls waiting for the PIN screen
   var inflight = 0;
+
+  // Google's Apps Script servers sometimes answer 404/429/5xx when a phone sends
+  // many requests at the same moment. So: at most MAX_PARALLEL at a time, reads
+  // are retried a few times, and identical reads that are already running share
+  // one request. Saves are never retried automatically (so nothing is saved twice).
+  var MAX_PARALLEL = 2;
+  var READ_RETRIES = 4;
+  var WRITE_FNS = { addMaterial: 1, addProduct: 1, saveTransaction: 1, updateTransaction: 1, deleteTransaction: 1,
+                    saveSale: 1, updateSale: 1, deleteSale: 1, savePayroll: 1, updatePayroll: 1, deletePayroll: 1,
+                    savePayrollSettings: 1 };
+  var waiting = [];     // requests waiting for a free slot
+  var running = 0;
+  var sameRead = {};    // 'fn|args' -> [callbacks] for reads already on their way
 
   function busy(d) {
     inflight = Math.max(0, inflight + d);
@@ -987,36 +1088,87 @@
     if (bar) bar.style.display = inflight ? 'block' : 'none';
   }
 
+  function HttpError(status) { var e = new Error('Server answered ' + status); e.status = status; return e; }
+  function isTransient(err) {
+    if (!err) return false;
+    if (err.status) return err.status === 404 || err.status === 408 || err.status === 429 || err.status >= 500;
+    return !err.notApp;   // network hiccup (fetch failed) — also worth another try
+  }
+
   function post(fn, args, usePin) {
-    return fetch(apiUrl, { method: 'POST', redirect: 'follow',
+    return fetch(apiUrl, { method: 'POST', redirect: 'follow', cache: 'no-store',
                            body: JSON.stringify({ pin: usePin, fn: fn, args: args || [] }) })
       .then(function (r) {
-        if (!r.ok) throw new Error('Server answered ' + r.status);
+        if (!r.ok) throw HttpError(r.status);
         return r.text();
       })
       .then(function (t) {
         try { return JSON.parse(t); }
-        catch (e) { throw new Error('The connection link did not answer like the VLLP app. Check the link and that the deployment access is "Anyone".'); }
+        catch (e) {
+          var err = new Error('The connection link did not answer like the VLKC app. Check the link and that the deployment access is "Anyone".');
+          err.notApp = true; throw err;
+        }
       });
+  }
+
+  function pump() {
+    while (running < MAX_PARALLEL && waiting.length) {
+      var job = waiting.shift();
+      running++;
+      job();
+    }
+  }
+  function slot(job) { waiting.push(job); pump(); }
+  function release() { running--; pump(); }
+
+  function wait(ms) { return new Promise(function (res) { setTimeout(res, ms); }); }
+
+  function send(fn, args, attempt) {
+    return new Promise(function (resolve, reject) {
+      slot(function () {
+        post(fn, args, pin).then(function (r) { release(); resolve(r); },
+                                 function (e) { release(); reject(e); });
+      });
+    }).catch(function (err) {
+      var isWrite = !!WRITE_FNS[fn];
+      if (!isWrite && attempt < READ_RETRIES && isTransient(err) && navigator.onLine !== false) {
+        return wait(700 * (attempt + 1)).then(function () { return send(fn, args, attempt + 1); });
+      }
+      if (isWrite && err && err.status) {
+        err = new Error('The Google Sheet did not confirm this save (server answered ' + err.status + '). ' +
+                        'Press Refresh to check whether it was saved before trying again.');
+      }
+      throw err;
+    });
   }
 
   function call(fn, args, ok, fail) {
     if (!ready) { queue.push([fn, args, ok, fail]); return; }
+    var key = WRITE_FNS[fn] ? null : fn + '|' + JSON.stringify(args || []);
+    if (key && sameRead[key]) { sameRead[key].push([ok, fail]); return; }
+    var cbs = [[ok, fail]];
+    if (key) sameRead[key] = cbs;
     busy(1);
-    post(fn, args, pin).then(function (res) {
+    send(fn, args, 0).then(function (res) {
       busy(-1);
-      if (res.ok) { if (ok) ok(res.result); return; }
+      if (key) delete sameRead[key];
+      if (res.ok) { cbs.forEach(function (c) { if (c[0]) c[0](res.result); }); return; }
       if (res.code === 'BAD_PIN' || res.code === 'DISABLED' || res.code === 'LOCKED') {
-        queue.push([fn, args, ok, fail]);
+        cbs.forEach(function (c) { queue.push([fn, args, c[0], c[1]]); });
         needSetup(res.error);
         return;
       }
-      if (fail) fail(new Error(res.error || 'Something went wrong'));
+      var e = new Error(res.error || 'Something went wrong');
+      cbs.forEach(function (c) { if (c[1]) c[1](e); });
     }).catch(function (err) {
       busy(-1);
+      if (key) delete sameRead[key];
       var msg = navigator.onLine === false ? 'No internet connection. Connect and try again.'
-                                           : 'Could not reach the Google Sheet. ' + (err && err.message ? err.message : '');
-      if (fail) fail(new Error(msg));
+              : (err && /did not confirm|did not answer/.test(err.message || '')) ? err.message
+              : 'Could not reach the Google Sheet after several tries (' + (err && err.message ? err.message : 'no answer') +
+                '). Check your internet, then press Refresh.';
+      var e2 = new Error(msg);
+      cbs.forEach(function (c) { if (c[1]) c[1](e2); });
     });
   }
 
@@ -1734,7 +1886,8 @@
             const code = String(r['Transaction Code']);
             tr.title = 'Click to view / edit ' + code;
             const date = r['Date'] ? new Date(r['Date']).toLocaleDateString() : '';
-            const edited = r['Last Edited'] ? '<div class="hint">Edited ' + new Date(r['Last Edited']).toLocaleDateString() + '</div>' : '';
+            const edited = (r['Last Edited'] ? '<div class="hint">Edited ' + new Date(r['Last Edited']).toLocaleDateString() + '</div>' : '') +
+              (r['Quote Sent At'] ? '<div class="hint" title="' + esc(r['Quote Sent To']) + '">✉️ Emailed ' + new Date(r['Quote Sent At']).toLocaleDateString() + '</div>' : '');
             const matCost = txnMaterialCost(r);
             const punch = punchingOfRow(r);
             const addlCost = punch.cost;
@@ -1748,7 +1901,10 @@
               <td>${fmt(r['Total Expenses'])}</td><td>${fmt(r['Cost Per Piece'])}</td>
               <td>${fmt(r['12% VAT'])}</td><td>${fmt(r['Markup %'])}</td><td>${fmt(r['Selling Price'])}</td>
               <td>${fmt(r['Profit'])}</td>
-              <td><button class="danger" onclick="event.stopPropagation(); removeTxn('${esc(code)}')">Delete</button></td>
+              <td><div class="row-actions">
+                <button class="secondary sm" title="Print quotation" onclick="event.stopPropagation(); openQuoteFromTxn('${esc(code)}')">🖨 Quote</button>
+                <button class="danger" onclick="event.stopPropagation(); removeTxn('${esc(code)}')">Delete</button>
+              </div></td>
             `;
             tr.addEventListener('click', () => editTxn(code));   // the whole row (pencil included) opens it
             body.appendChild(tr);
@@ -2152,7 +2308,7 @@
   document.getElementById('e_paid').addEventListener('input', () => syncPayment('e', 'amount'));
 
   // close on Escape, or when clicking the dark backdrop (not when a text-select drag ends there)
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeEditSale(); closeInventoryDetail(); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeEditSale(); closeInventoryDetail(); closeQuoteSetup(); } });
   (function () {
     const overlay = document.getElementById('editSaleOverlay');
     let downOnBackdrop = false;
@@ -2430,14 +2586,17 @@
     document.getElementById('d_exp').textContent = fmt(m.totalExpenses);
     document.getElementById('d_rev').textContent = fmt(m.totalRevenue);
     document.getElementById('d_profit').textContent = fmt(m.totalProfit);
+    document.getElementById('d_note').textContent =
+      'Expenses are recognized only when a sale is recorded: the quotation\'s cost for the pcs sold. Saving a quotation in the Calculator adds no expense.' +
+      (m.quotedCost ? ' Quotations saved this month total ₱' + fmtMoney(m.quotedCost) + ' in cost, counted as their pcs are sold.' : '');
     const names = Object.keys(m.products);
     if (!names.length) { empty.style.display = 'block'; return; }
     empty.style.display = 'none';
     names.forEach(name => {
       const p = m.products[name];
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${name}</td><td>${p.qtyProduced}</td><td>${p.qtySold}</td>
-                       <td>${fmt(p.revenue)}</td><td>${fmt(p.profit)}</td>`;
+      tr.innerHTML = `<td>${esc(name)}</td><td>${p.qtyProduced}</td><td>${p.qtySold}</td>
+                       <td>${fmt(p.revenue)}</td><td>${fmt(p.cost || 0)}</td><td>${fmt(p.profit)}</td>`;
       body.appendChild(tr);
     });
   }
@@ -2449,6 +2608,7 @@
   const MAX_PAY_DAYS = 31;
 
   let prHours = {};        // 'yyyy-mm-dd' -> hours typed, kept while the dates are changed around
+  let prNight = {};        // 'yyyy-mm-dd' -> of those hours, how many fell between 10pm and 6am
   let prOtherLines = [];   // additional deductions: [{ desc, amount }]
 
   /** 'yyyy-mm-dd' -> local Date (no timezone shift). */
@@ -2476,9 +2636,10 @@
     const rate = num('pr_rate');
     const hpd = num('pr_hpd') > 0 ? num('pr_hpd') : 8;
     const dpw = num('pr_dpw') > 0 ? num('pr_dpw') : 6;
-    const mult = num('pr_otMult') > 0 ? num('pr_otMult') : 1.25;
+    const mult = num('pr_otMult') > 0 ? num('pr_otMult') : 1;
+    const ndPct = num('pr_ndPct') >= 0 ? num('pr_ndPct') : 10;
     const hourly = type === 'Weekly' ? rate / (dpw * hpd) : type === 'Daily' ? rate / hpd : rate;
-    return { type, rate, hpd, dpw, mult, hourly };
+    return { type, rate, hpd, dpw, mult, ndPct, hourly };
   }
 
   function onRateTypeChange() {
@@ -2509,10 +2670,11 @@
       const tr = document.createElement('tr');
       tr.dataset.date = d;
       if (dt.getDay() === 0) tr.className = 'weekend';
-      const h = prHours[d];
+      const h = prHours[d], n = prNight[d];
       tr.innerHTML = `<td>${dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
         <td>${DAY_NAMES[dt.getDay()]}</td>
         <td><input type="number" step="0.5" min="0" max="24" class="pr-hrs" data-date="${d}" value="${h === undefined ? '' : h}" placeholder="0"></td>
+        <td><input type="number" step="0.5" min="0" max="8" class="pr-night" data-date="${d}" value="${n === undefined ? '' : n}" placeholder="0"></td>
         <td class="r reg">0</td><td class="r ot">0</td><td class="r pay">0.00</td>`;
       body.appendChild(tr);
     });
@@ -2521,6 +2683,17 @@
       if (inp.value === '' || isNaN(v)) delete prHours[inp.dataset.date];
       else prHours[inp.dataset.date] = Math.max(0, Math.min(24, v));
       computePayroll();
+    }));
+    body.querySelectorAll('.pr-night').forEach(inp => inp.addEventListener('input', () => {
+      const v = parseFloat(inp.value);
+      if (inp.value === '' || isNaN(v)) delete prNight[inp.dataset.date];
+      else prNight[inp.dataset.date] = Math.max(0, Math.min(8, v));   // 10pm–6am is 8 hours at most
+      computePayroll();
+    }));
+    // when leaving a night box, show the hours that actually count (10pm–6am is 8 hours at most)
+    body.querySelectorAll('.pr-night').forEach(inp => inp.addEventListener('change', () => {
+      const d = inp.dataset.date;
+      if (prNight[d] !== undefined && prNight[d] !== parseFloat(inp.value)) inp.value = prNight[d] || '';
     }));
     const span = Math.round((parseYmd(e) - parseYmd(s)) / 864e5) + 1;
     if (span > MAX_PAY_DAYS) { empty.style.display = 'block'; empty.textContent = 'Only the first ' + MAX_PAY_DAYS + ' days of the period are listed.'; }
@@ -2555,33 +2728,41 @@
   /** Works out every figure in the pop-up and returns them for saving. */
   function computePayroll() {
     const st = prSettings();
-    let regH = 0, otH = 0, daysWorked = 0;
+    // Hours Worked = day work: up to the regular hours per day is regular, the rest is overtime.
+    // Night OT Hrs = extra hours worked 10pm–6am: all overtime, plus the night differential
+    // (ND% of the overtime pay for those hours).
+    let regH = 0, otH = 0, ndH = 0, daysWorked = 0;
+    const otRate = st.hourly * st.mult;
+    const ndRate = otRate * st.ndPct / 100;        // extra per night hour, on top of its overtime pay
     const days = [];
     document.querySelectorAll('#pr_daysBody tr').forEach(tr => {
       const d = tr.dataset.date;
       const h = prHours[d] || 0;
-      const reg = Math.min(h, st.hpd), ot = Math.max(0, h - st.hpd);
-      regH += reg; otH += ot;
-      if (h > 0) daysWorked++;
-      days.push({ date: d, hours: h });
+      const n = prNight[d] || 0;
+      const reg = Math.min(h, st.hpd), ot = Math.max(0, h - st.hpd) + n;
+      regH += reg; otH += ot; ndH += n;
+      if (h > 0 || n > 0) daysWorked++;
+      days.push(n ? { date: d, hours: h, night: n } : { date: d, hours: h });
       tr.querySelector('.reg').textContent = reg ? String(reg) : '0';
       tr.querySelector('.ot').textContent = ot ? String(ot) : '0';
-      tr.querySelector('.pay').textContent = fmtMoney(roundMoney(reg * st.hourly + ot * st.hourly * st.mult));
+      tr.querySelector('.pay').textContent = fmtMoney(roundMoney(reg * st.hourly + ot * otRate + n * ndRate));
       tr.classList.toggle('has-ot', ot > 0);
     });
     const regPay = roundMoney(regH * st.hourly);
-    const otPay = roundMoney(otH * st.hourly * st.mult);
-    const gross = roundMoney(regPay + otPay);
+    const otPay = roundMoney(otH * otRate);
+    const ndPay = roundMoney(ndH * ndRate);
+    const gross = roundMoney(regPay + otPay + ndPay);
 
     document.getElementById('pr_daysFoot').innerHTML = days.length
       ? '<tr class="total-row"><td colspan="2">Total (' + daysWorked + (daysWorked === 1 ? ' day' : ' days') + ' worked)</td><td>' +
-        (regH + otH) + ' hrs</td><td class="r">' + regH + '</td><td class="r">' + otH + '</td><td class="r">' + fmtMoney(gross) + '</td></tr>'
+        (regH + otH - ndH) + ' hrs</td><td>' + ndH + ' hrs</td><td class="r">' + regH + '</td><td class="r">' + otH + '</td><td class="r">' + fmtMoney(gross) + '</td></tr>'
       : '';
     document.getElementById('pr_hourlyHint').textContent = st.rate > 0
       ? 'Hourly rate: ₱' + fmtMoney(st.hourly) +
         (st.type === 'Weekly' ? ' (₱' + fmtMoney(st.rate) + ' ÷ ' + st.dpw + ' days ÷ ' + st.hpd + ' hrs)'
          : st.type === 'Daily' ? ' (₱' + fmtMoney(st.rate) + ' ÷ ' + st.hpd + ' hrs)' : '') +
-        ' · Overtime: ₱' + fmtMoney(st.hourly * st.mult) + ' per hour for hours beyond ' + st.hpd + ' in a day'
+        ' · Overtime: ₱' + fmtMoney(otRate) + ' per hour for hours beyond ' + st.hpd + ' in a day and for night hours' +
+        ' · Night overtime (10pm–6am): ₱' + fmtMoney(otRate + ndRate) + ' per hour (overtime + ' + st.ndPct + '%)'
       : 'Enter the rate to see the hourly and overtime rates.';
 
     const other = roundMoney(prOtherLines.reduce((t, l) => t + (Number(l.amount) || 0), 0));
@@ -2594,15 +2775,17 @@
     document.getElementById('pr_regPay').textContent = fmtMoney(regPay);
     document.getElementById('pr_regSub').textContent = regH + ' hrs × ₱' + fmtMoney(st.hourly);
     document.getElementById('pr_otPay').textContent = fmtMoney(otPay);
-    document.getElementById('pr_otSub').textContent = otH + ' hrs × ₱' + fmtMoney(st.hourly * st.mult);
+    document.getElementById('pr_otSub').textContent = otH + ' hrs × ₱' + fmtMoney(otRate);
+    document.getElementById('pr_ndPay').textContent = fmtMoney(ndPay);
+    document.getElementById('pr_ndSub').textContent = ndH + ' night hrs × ₱' + fmtMoney(ndRate) + ' (' + st.ndPct + '% of overtime)';
     document.getElementById('pr_gross').textContent = fmtMoney(gross);
     document.getElementById('pr_deductions').textContent = fmtMoney(ded);
     document.getElementById('pr_net').textContent = fmtMoney(net);
     document.getElementById('pr_employer').textContent = fmtMoney(er);
     document.getElementById('pr_cost').textContent = fmtMoney(roundMoney(gross + er));
-    return { st, days, regH, otH, daysWorked, regPay, otPay, gross, other, ded, net, er };
+    return { st, days, regH, otH, ndH, daysWorked, regPay, otPay, ndPay, gross, other, ded, net, er };
   }
-  ['pr_rate', 'pr_hpd', 'pr_dpw', 'pr_otMult'].concat(PR_EE, PR_ER).forEach(id => {
+  ['pr_rate', 'pr_hpd', 'pr_dpw', 'pr_otMult', 'pr_ndPct'].concat(PR_EE, PR_ER).forEach(id => {
     document.getElementById(id).addEventListener('input', computePayroll);
   });
   document.getElementById('pr_rateType').addEventListener('change', onRateTypeChange);
@@ -2617,8 +2800,10 @@
     document.getElementById('pr_rateType').value = 'Weekly';
     document.getElementById('pr_hpd').value = 8;
     document.getElementById('pr_dpw').value = 6;
-    document.getElementById('pr_otMult').value = 1.25;
+    document.getElementById('pr_otMult').value = 1;
+    document.getElementById('pr_ndPct').value = 10;
     prHours = {};
+    prNight = {};
     prOtherLines = [];
     renderOtherDeductions();
     document.getElementById('payrollStatus').textContent = '';
@@ -2694,6 +2879,7 @@
     if (pn(r, 'Regular Hours Per Day')) document.getElementById('pr_hpd').value = pn(r, 'Regular Hours Per Day');
     if (pn(r, 'Work Days Per Week')) document.getElementById('pr_dpw').value = pn(r, 'Work Days Per Week');
     if (pn(r, 'OT Multiplier')) document.getElementById('pr_otMult').value = pn(r, 'OT Multiplier');
+    if (r['Night Diff %'] !== '' && r['Night Diff %'] !== undefined && r['Night Diff %'] !== null) document.getElementById('pr_ndPct').value = pn(r, 'Night Diff %');
     document.getElementById('pr_notes').value = r['Notes'] || '';
 
     const ee = employeeShare(r), er = employerShare(r);
@@ -2709,9 +2895,12 @@
       ? lines.map(l => ({ desc: String(l.desc || ''), amount: Number(l.amount) || 0 }))
       : (ee.other > 0 ? [{ desc: String(r['Other Deductions Note'] || 'Other deductions'), amount: ee.other }] : []);
 
-    prHours = {};
+    prHours = {}; prNight = {};
     const days = parseJsonSafe(r['Daily Hours'], []);
-    days.forEach(d => { if (d && d.date && Number(d.hours) > 0) prHours[d.date] = Number(d.hours); });
+    days.forEach(d => {
+      if (d && d.date && Number(d.hours) > 0) prHours[d.date] = Number(d.hours);
+      if (d && d.date && Number(d.night) > 0) prNight[d.date] = Number(d.night);
+    });
 
     onRateTypeChange();
     buildPayrollDays();
@@ -2726,7 +2915,8 @@
       document.getElementById('pr_daysBody').innerHTML = '';
       document.getElementById('pr_daysFoot').innerHTML = '';
       const set = (id, v) => { document.getElementById(id).textContent = fmtMoney(v); };
-      set('pr_regPay', pn(r, 'Gross Pay')); set('pr_otPay', 0); set('pr_gross', pn(r, 'Gross Pay'));
+      set('pr_regPay', pn(r, 'Gross Pay')); set('pr_otPay', 0); set('pr_ndPay', 0); set('pr_gross', pn(r, 'Gross Pay'));
+      document.getElementById('pr_ndSub').textContent = '—';
       set('pr_deductions', ee.total); set('pr_net', pn(r, 'Net Pay')); set('pr_employer', er.total);
       set('pr_cost', roundMoney(pn(r, 'Gross Pay') + er.total));
       set('pr_eeTotal', ee.total); set('pr_erTotal', er.total);
@@ -2760,6 +2950,7 @@
       regHoursPerDay: p.st.hpd,
       daysPerWeek: p.st.dpw,
       otMultiplier: p.st.mult,
+      nightDiffPct: p.st.ndPct,
       days: p.days,
       sssEmployee: num('pr_sss_ee'), pagibigEmployee: num('pr_pagibig_ee'), philhealthEmployee: num('pr_philhealth_ee'),
       otherLines: lines,
@@ -2789,6 +2980,280 @@
     else runner.savePayroll(payload);
   }
 
+  // ---------- quotation print setup ----------
+  // A quotation shows the customer only what they need: product, specification,
+  // quantity, unit price (VAT inclusive, 4 decimals — the same price a sale will
+  // use), amount, the VAT inside it, and the terms. Internal costing never prints.
+  let quoteSrc = null;    // { code, date, product, spec, length, width, thickness, qty, price }
+  const QUOTE_FIELDS = ['customer', 'address', 'attention', 'email', 'terms', 'delivery', 'notes', 'preparedBy'];
+  const QUOTE_INPUTS = { customer: 'q_customer', address: 'q_address', attention: 'q_attention', email: 'q_email',
+                         terms: 'q_terms', delivery: 'q_delivery', notes: 'q_notes', preparedBy: 'q_prepared' };
+
+  function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+  /** Prints the quotation of what is on the Calculator right now. */
+  function openQuoteFromCalculator() {
+    const c = calculate();
+    const product = currentProductName();
+    const row = editingTxnCode ? txnRowsCache.find(x => String(x['Transaction Code']) === String(editingTxnCode)) : null;
+    openQuoteSetup({
+      code: editingTxnCode || '',
+      date: row && row['Date'] ? new Date(row['Date']) : new Date(),
+      product, spec: document.getElementById('specs').value.trim(),
+      length: num('length'), width: num('width'), thickness: num('thickness'),
+      qty: num('quantity'), price: c.sellingPrice,
+      saved: row ? parseJsonSafe(row['Quote Details'], null) : null
+    }, editingTxnCode
+      ? 'Printing what is on the Calculator now. If you changed anything, press Update Transaction too so the saved record matches.'
+      : 'This quotation is not saved yet, so it prints as DRAFT. Save the transaction first to give it a quotation number.');
+  }
+
+  /** Prints the quotation of a saved transaction (from the Transactions list). */
+  function openQuoteFromTxn(code) {
+    const r = txnRowsCache.find(x => String(x['Transaction Code']) === String(code));
+    if (!r) { showError('print quotation', new Error('Transaction ' + code + ' not found — press Refresh')); return; }
+    openQuoteSetup({
+      code: String(code), date: r['Date'] ? new Date(r['Date']) : new Date(),
+      product: String(r['Product Name'] || ''), spec: String(r['Specification'] || ''),
+      length: Number(r['Length']) || 0, width: Number(r['Width']) || 0, thickness: Number(r['Thickness']) || 0,
+      qty: Number(r['Quantity']) || 0, price: Number(r['Selling Price']) || 0,
+      saved: parseJsonSafe(r['Quote Details'], null)
+    }, '');
+  }
+
+  function openQuoteSetup(src, warning) {
+    quoteSrc = src;
+    const saved = src.saved || {};
+    const dflt = { terms: lsGet('vllp_q_terms'),
+                   delivery: lsGet('vllp_q_delivery'), preparedBy: lsGet('vllp_q_prepared') };
+    QUOTE_FIELDS.forEach(k => {
+      const v = saved[k] !== undefined && saved[k] !== '' ? saved[k] : (dflt[k] || '');
+      document.getElementById(QUOTE_INPUTS[k]).value = v;
+    });
+    document.getElementById('q_date').value = ymd(src.date instanceof Date && !isNaN(src.date) ? src.date : new Date());
+    document.getElementById('q_title').textContent = 'Print Quotation ' + (src.code || '(draft)');
+    const w = document.getElementById('q_warn');
+    w.textContent = warning || '';
+    w.style.display = warning ? 'block' : 'none';
+    document.getElementById('q_status').textContent = '';
+    closeQuoteEmail();
+    renderQuotePreview();
+    document.getElementById('quoteOverlay').style.display = 'flex';
+  }
+  function closeQuoteSetup() { document.getElementById('quoteOverlay').style.display = 'none'; }
+
+  function quoteDetails() {
+    const d = {};
+    QUOTE_FIELDS.forEach(k => { d[k] = document.getElementById(QUOTE_INPUTS[k]).value.trim(); });
+    return d;
+  }
+
+  /** Every figure and line of text on the quotation, shared by the print page and the emailed PDF. */
+  function quoteData() {
+    const s = quoteSrc, d = quoteDetails();
+    const qDate = parseYmd(document.getElementById('q_date').value) || new Date();
+    const long = dt => dt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const price = roundPrice(s.price);
+    const qty = Number(s.qty) || 0;
+    const total = round2(price * qty);                  // same as the sale total will be
+    const size = [s.length, s.width, s.thickness].every(v => v > 0) ? s.length + ' × ' + s.width + ' × ' + s.thickness : '';
+    return { s, d, qDate, long, price, qty, total, vat: vatIncluded(total), net: netOfVat(total),
+             sub: s.spec ? esc(s.spec) : (size ? 'Size: ' + esc(size) : '') };
+  }
+
+  function quoteHtml() {
+    const { s, d, qDate, long, price, qty, total, vat, net, sub } = quoteData();
+    const line = (k, v) => v ? '<tr><td class="k">' + k + '</td><td>' + esc(v).replace(/\n/g, '<br>') + '</td></tr>' : '';
+    return `
+      <div class="slip quote">
+        <div class="slip-head">
+          <div><h1>VLKC MARKETING</h1><div>Price Quotation</div></div>
+          <div style="text-align:right;"><div class="slip-title">QUOTATION</div>
+            <div>No. ${s.code ? esc(s.code) : '<strong>DRAFT</strong>'}</div><div>Date: ${long(qDate)}</div></div>
+        </div>
+        <table class="info">
+          <tr><td class="k">To</td><td><strong>${esc(d.customer) || '&nbsp;'}</strong></td></tr>
+          ${d.address ? '<tr><td class="k">Address</td><td>' + esc(d.address) + '</td></tr>' : ''}
+          ${d.attention ? '<tr><td class="k">Attention</td><td>' + esc(d.attention) + '</td></tr>' : ''}
+        </table>
+        <div class="q-intro">We are pleased to quote you the following:</div>
+        <table class="q-items">
+          <thead><tr><th style="width:34px;">No.</th><th>Description</th><th class="r">Qty (pcs)</th><th class="r">Unit Price (₱)</th><th class="r">Amount (₱)</th></tr></thead>
+          <tbody><tr><td>1</td><td><strong>${esc(s.product)}</strong>${sub ? '<div class="desc-sub">' + sub + '</div>' : ''}</td>
+            <td class="r">${qty.toLocaleString()}</td><td class="r">${fmtPrice(price)}</td><td class="r">${fmtMoney(total)}</td></tr></tbody>
+        </table>
+        <table class="q-sum">
+          <tr><td>VATable Sales</td><td class="r">${fmtMoney(net)}</td></tr>
+          <tr><td>12% VAT</td><td class="r">${fmtMoney(vat)}</td></tr>
+          <tr class="grand"><td>TOTAL AMOUNT</td><td class="r">₱${fmtMoney(total)}</td></tr>
+          <tr><td colspan="2" class="r" style="font-size:10px;color:#444;">Prices are VAT inclusive</td></tr>
+        </table>
+        <table class="q-terms">
+          ${line('Payment terms', d.terms)}
+          ${line('Delivery', d.delivery)}
+          ${line('Notes', d.notes)}
+        </table>
+        <div class="sign">
+          <div style="flex:0 0 240px;"><div class="nm">${esc(d.preparedBy) || '&nbsp;'}</div>Prepared by</div>
+        </div>
+      </div>`;
+  }
+
+  /** The quotation as a stand-alone page for the emailed PDF. Google's PDF maker
+   *  understands plain tables and simple styles best, so this uses tables only. */
+  function quotePdfHtml() {
+    const q = quoteData(), s = q.s, d = q.d;
+    const td = 'border:1px solid #999;padding:5px 7px;';
+    const line = (k, v) => v ? '<tr><td style="padding:2px 10px 2px 0;color:#444;width:120px;vertical-align:top;">' + k +
+      '</td><td style="padding:2px 0;">' + esc(v).replace(/\n/g, '<br>') + '</td></tr>' : '';
+    const sign = (name, label) => '<td style="width:33%;padding:0 12px;text-align:center;vertical-align:bottom;">' +
+      '<div style="border-bottom:1px solid #000;height:34px;font-weight:bold;font-size:12px;">' + (name ? esc(name) : '&nbsp;') + '</div>' +
+      '<div style="font-size:10px;padding-top:3px;">' + label + '</div></td>';
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Quotation ${esc(s.code)}</title></head>
+      <body style="font-family:Arial,sans-serif;font-size:12px;color:#000;margin:0;">
+      <table style="width:100%;border-collapse:collapse;border-bottom:2px solid #000;margin-bottom:12px;"><tr>
+        <td style="padding-bottom:6px;"><div style="font-size:20px;font-weight:bold;letter-spacing:1px;">VLKC MARKETING</div><div>Price Quotation</div></td>
+        <td style="padding-bottom:6px;text-align:right;vertical-align:bottom;"><div style="font-size:15px;font-weight:bold;letter-spacing:2px;">QUOTATION</div>
+          <div>No. ${esc(s.code)}</div><div>Date: ${q.long(q.qDate)}</div></td></tr></table>
+      <table style="border-collapse:collapse;margin-bottom:10px;">
+        ${line('To', d.customer)}${line('Address', d.address)}${line('Attention', d.attention)}
+      </table>
+      <div style="margin:4px 0 10px;">We are pleased to quote you the following:</div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:10px;">
+        <tr style="background:#eeeeee;font-size:11px;"><td style="${td}width:30px;"><b>NO.</b></td><td style="${td}"><b>DESCRIPTION</b></td>
+          <td style="${td}text-align:right;"><b>QTY (PCS)</b></td><td style="${td}text-align:right;"><b>UNIT PRICE (PHP)</b></td><td style="${td}text-align:right;"><b>AMOUNT (PHP)</b></td></tr>
+        <tr><td style="${td}vertical-align:top;">1</td><td style="${td}"><b>${esc(s.product)}</b>${q.sub ? '<br><span style="font-size:11px;color:#444;">' + q.sub + '</span>' : ''}</td>
+          <td style="${td}text-align:right;vertical-align:top;">${q.qty.toLocaleString()}</td><td style="${td}text-align:right;vertical-align:top;">${fmtPrice(q.price)}</td>
+          <td style="${td}text-align:right;vertical-align:top;">${fmtMoney(q.total)}</td></tr>
+      </table>
+      <table style="width:300px;margin-left:auto;border-collapse:collapse;">
+        <tr><td style="padding:3px 6px;">VATable Sales</td><td style="padding:3px 6px;text-align:right;">${fmtMoney(q.net)}</td></tr>
+        <tr><td style="padding:3px 6px;">12% VAT</td><td style="padding:3px 6px;text-align:right;">${fmtMoney(q.vat)}</td></tr>
+        <tr><td style="padding:6px;border-top:2px solid #000;font-size:15px;font-weight:bold;">TOTAL AMOUNT</td>
+            <td style="padding:6px;border-top:2px solid #000;font-size:15px;font-weight:bold;text-align:right;">PHP ${fmtMoney(q.total)}</td></tr>
+        <tr><td colspan="2" style="padding:0 6px;text-align:right;font-size:10px;color:#444;">Prices are VAT inclusive</td></tr>
+      </table>
+      <table style="border-collapse:collapse;margin:16px 0 40px;">
+        ${line('Payment terms', d.terms)}${line('Delivery', d.delivery)}${line('Notes', d.notes)}
+      </table>
+      <table style="width:100%;border-collapse:collapse;"><tr>
+        ${sign(d.preparedBy, 'Prepared by')}<td></td>
+      </tr></table>
+      </body></html>`;
+  }
+
+  /** Checks the quotation can go out; returns an error message or ''. */
+  function quoteProblem() {
+    const s = quoteSrc;
+    if (!s || !s.product) return 'Enter or pick a product on the Calculator first';
+    if (!(Number(s.qty) > 0)) return 'The quantity is 0 — enter it on the Calculator first';
+    if (!(roundPrice(s.price) > 0)) return 'The selling price is 0 — fill in the Calculator first';
+    return '';
+  }
+
+  function rememberQuoteDefaults(d) {
+    lsSet('vllp_q_terms', d.terms);
+    lsSet('vllp_q_delivery', d.delivery); lsSet('vllp_q_prepared', d.preparedBy);
+  }
+
+  // ---------- emailing a quotation ----------
+  function openQuoteEmail() {
+    const st = document.getElementById('q_status');
+    const problem = quoteProblem();
+    if (problem) { st.textContent = problem; st.className = 'status err'; return; }
+    if (!quoteSrc.code) {
+      st.textContent = 'Save the transaction first — only a saved quotation (with its number) can be emailed.';
+      st.className = 'status err';
+      return;
+    }
+    st.textContent = '';
+    const q = quoteData(), d = q.d;
+    document.getElementById('qe_to').value = d.email;
+    document.getElementById('qe_cc').value = '';
+    document.getElementById('qe_subject').value = 'Quotation ' + quoteSrc.code + ' — VLKC Marketing';
+    const hello = d.attention ? 'Good day, ' + d.attention + '!' : (d.customer ? 'Good day, ' + d.customer + '!' : 'Good day!');
+    document.getElementById('qe_message').value =
+      hello + '\n\n' +
+      'Please find attached our quotation ' + quoteSrc.code + ' for ' + quoteSrc.product + ' — ' +
+      q.qty.toLocaleString() + ' pcs at ₱' + fmtPrice(q.price) + ' each, for a total of ₱' + fmtMoney(q.total) + ' (VAT inclusive).' +
+      '\n\nIf you have any questions, just reply to this email.\n\nThank you,\n' +
+      (d.preparedBy ? d.preparedBy + '\n' : '') + 'VLKC Marketing';
+    document.getElementById('qe_attach').textContent = '📎 Attachment: Quotation ' + quoteSrc.code + ' - VLKC Marketing.pdf';
+    document.getElementById('qe_status').textContent = '';
+    document.getElementById('qe_sendBtn').disabled = false;
+    document.getElementById('q_emailPanel').style.display = 'block';
+    document.getElementById('q_emailPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    (d.email ? document.getElementById('qe_message') : document.getElementById('qe_to')).focus();
+  }
+  function closeQuoteEmail() { document.getElementById('q_emailPanel').style.display = 'none'; }
+
+  function sendQuoteEmail() {
+    const st = document.getElementById('qe_status');
+    const fail = msg => { st.textContent = msg; st.className = 'status err'; };
+    const problem = quoteProblem();
+    if (problem) return fail(problem);
+    const to = document.getElementById('qe_to').value.trim();
+    const cc = document.getElementById('qe_cc').value.trim();
+    const okEmail = v => v.split(/[,;\s]+/).filter(Boolean).every(x => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x));
+    if (!to || !okEmail(to)) return fail('Enter a valid email address in To');
+    if (cc && !okEmail(cc)) return fail('Check the CC email addresses');
+    if (!document.getElementById('q_email').value.trim()) document.getElementById('q_email').value = to;
+    const d = quoteDetails();
+    rememberQuoteDefaults(d);
+    const code = quoteSrc.code;
+    const btn = document.getElementById('qe_sendBtn');
+    btn.disabled = true;
+    st.textContent = 'Sending…'; st.className = 'status';
+    google.script.run
+      .withSuccessHandler(res => {
+        btn.disabled = false;
+        if (!res || !res.success) return fail((res && res.error) || 'Could not send the email');
+        const row = txnRowsCache.find(x => String(x['Transaction Code']) === String(code));
+        if (row) { row['Quote Details'] = JSON.stringify(Object.assign({}, d, { email: res.to }));
+                   row['Quote Sent To'] = res.to; row['Quote Sent At'] = new Date().toISOString(); }
+        st.textContent = 'Sent ✓ to ' + res.to; st.className = 'status ok';
+        if (document.getElementById('page-txn').classList.contains('active')) loadTransactions();
+      })
+      .withFailureHandler(err => {
+        btn.disabled = false;
+        const msg = err && err.message ? err.message : String(err);
+        fail(/permission|authoriz|MailApp|script\.send_mail/i.test(msg)
+          ? 'Email permission is not set up yet. In Apps Script, run authorizeEmail once (Run ▶) and allow access, then try again.'
+          : 'Error: ' + msg);
+      })
+      .emailQuotation(code, d, { to, cc, subject: document.getElementById('qe_subject').value,
+                                 message: document.getElementById('qe_message').value, html: quotePdfHtml() });
+  }
+
+  function renderQuotePreview() {
+    if (!quoteSrc) return;
+    document.getElementById('q_preview').innerHTML = quoteHtml();
+  }
+  ['q_customer', 'q_address', 'q_attention', 'q_email', 'q_date', 'q_terms', 'q_delivery', 'q_notes', 'q_prepared']
+    .forEach(id => document.getElementById(id).addEventListener('input', renderQuotePreview));
+
+  function printQuotation() {
+    const st = document.getElementById('q_status');
+    const s = quoteSrc;
+    const problem = quoteProblem();
+    if (problem) { st.textContent = problem; st.className = 'status err'; return; }
+    const d = quoteDetails();
+    rememberQuoteDefaults(d);   // the usual terms for the next quotation
+    // keep the customer and terms with the saved quotation so it re-prints the same way
+    if (s.code) {
+      const row = txnRowsCache.find(x => String(x['Transaction Code']) === String(s.code));
+      if (row) row['Quote Details'] = JSON.stringify(d);
+      google.script.run
+        .withSuccessHandler(() => {})
+        .withFailureHandler(err => showError('save quotation details', err))
+        .saveQuoteDetails(s.code, d);
+    }
+    st.textContent = '';
+    document.getElementById('printArea').innerHTML = quoteHtml();
+    window.print();
+  }
+
   // ---------- payslip printing ----------
   function parseJsonSafe(s, dflt) {
     if (!s) return dflt;
@@ -2807,22 +3272,26 @@
     const hasDetail = days.length > 0;
     const hpd = pn(r, 'Regular Hours Per Day') || 8;
     const hourly = pn(r, 'Hourly Rate');
-    const mult = pn(r, 'OT Multiplier') || 1.25;
+    const mult = pn(r, 'OT Multiplier') || 1;
+    const ndH = pn(r, 'Night Hours'), ndPct = pn(r, 'Night Diff %');
+    const hasNight = ndH > 0 || days.some(d => Number(d.night) > 0);
 
     let dayRows = '';
     if (hasDetail) {
       dayRows = days.map(d => {
         const dt = parseYmd(d.date);
-        const h = Number(d.hours) || 0, reg = Math.min(h, hpd), ot = Math.max(0, h - hpd);
+        const h = Number(d.hours) || 0, reg = Math.min(h, hpd), ot = Math.max(0, h - hpd) + (Number(d.night) || 0);
         return '<tr><td>' + (dt ? dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : esc(d.date)) + '</td><td>' +
-          (dt ? DAY_NAMES[dt.getDay()] : '') + '</td><td class="r">' + (h || '') + '</td><td class="r">' + (reg || '') +
+          (dt ? DAY_NAMES[dt.getDay()] : '') + '</td><td class="r">' + (h || '') + '</td>' +
+          (hasNight ? '<td class="r">' + (Number(d.night) || '') + '</td>' : '') + '<td class="r">' + (reg || '') +
           '</td><td class="r">' + (ot || '') + '</td></tr>';
       }).join('');
     }
 
     const earnRows = hasDetail
       ? '<tr><td>Regular pay (' + pn(r, 'Regular Hours') + ' hrs × ₱' + m(hourly) + ')</td><td class="r">' + m(r['Regular Pay']) + '</td></tr>' +
-        '<tr><td>Overtime pay (' + pn(r, 'Overtime Hours') + ' hrs × ₱' + m(hourly * mult) + ')</td><td class="r">' + m(r['Overtime Pay']) + '</td></tr>'
+        '<tr><td>Overtime pay (' + pn(r, 'Overtime Hours') + ' hrs × ₱' + m(hourly * mult) + ')</td><td class="r">' + m(r['Overtime Pay']) + '</td></tr>' +
+        (hasNight ? '<tr><td>Night differential (' + ndH + ' night hrs × ₱' + m(hourly * mult * ndPct / 100) + ', ' + ndPct + '% of overtime)</td><td class="r">' + m(r['Night Diff Pay']) + '</td></tr>' : '')
       : '<tr><td>Basic pay (' + esc(r['Days/Hours Worked']) + ' × ₱' + m(r['Rate']) + ')</td><td class="r">' + m(r['Gross Pay']) + '</td></tr>';
 
     const otherRows = others.length
@@ -2832,16 +3301,16 @@
     document.getElementById('printArea').innerHTML = `
       <div class="slip">
         <div class="slip-head">
-          <div><h1>VLLP MARKETING</h1><div>Payroll</div></div>
+          <div><h1>VLKC MARKETING</h1><div>Payroll</div></div>
           <div style="text-align:right;"><div class="slip-title">PAYSLIP</div><div>${esc(code)}</div></div>
         </div>
         <table class="info">
           <tr><td class="k">Employee</td><td><strong>${esc(r['Employee Name'])}</strong></td><td class="k">Pay period</td><td>${esc(period)}</td></tr>
           <tr><td class="k">Position</td><td>${esc(r['Position'])}</td><td class="k">Rate</td><td>₱${m(r['Rate'])} ${esc(String(r['Rate Type'] || '').toLowerCase())}${hourly ? ' (₱' + m(hourly) + '/hr)' : ''}</td></tr>
         </table>
-        ${hasDetail ? `<table><thead><tr><th>Date</th><th>Day</th><th class="r">Hours</th><th class="r">Regular</th><th class="r">Overtime</th></tr></thead>
+        ${hasDetail ? `<table><thead><tr><th>Date</th><th>Day</th><th class="r">Hours</th>${hasNight ? '<th class="r">Night OT (10pm–6am)</th>' : ''}<th class="r">Regular</th><th class="r">Overtime</th></tr></thead>
           <tbody>${dayRows}</tbody>
-          <tfoot><tr class="tot"><td colspan="2">Total</td><td class="r">${pn(r, 'Regular Hours') + pn(r, 'Overtime Hours')}</td><td class="r">${pn(r, 'Regular Hours')}</td><td class="r">${pn(r, 'Overtime Hours')}</td></tr></tfoot></table>` : ''}
+          <tfoot><tr class="tot"><td colspan="2">Total</td><td class="r">${pn(r, 'Regular Hours') + pn(r, 'Overtime Hours') - (hasNight ? ndH : 0)}</td>${hasNight ? '<td class="r">' + ndH + '</td>' : ''}<td class="r">${pn(r, 'Regular Hours')}</td><td class="r">${pn(r, 'Overtime Hours')}</td></tr></tfoot></table>` : ''}
         <div class="cols">
           <div><table><thead><tr><th>Earnings</th><th class="r">Amount (₱)</th></tr></thead>
             <tbody>${earnRows}<tr class="tot"><td>Gross pay</td><td class="r">${m(r['Gross Pay'])}</td></tr></tbody></table></div>
@@ -2957,7 +3426,7 @@
 
     const mfg = manufacturingSalaryOf(key);
     document.getElementById('pd_mfgSalary').textContent = money(mfg.total);
-    document.getElementById('pd_mfgSalarySub').textContent = mfg.count + (mfg.count === 1 ? ' production run' : ' production runs');
+    document.getElementById('pd_mfgSalarySub').textContent = mfg.count + (mfg.count === 1 ? ' sale' : ' sales');
 
     // government contributions for the chosen month
     const c = document.getElementById('pd_contrib');
